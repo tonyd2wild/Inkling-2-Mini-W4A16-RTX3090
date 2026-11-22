@@ -1,0 +1,139 @@
+--- a/vllm/models/inkling2/nvidia/moe.py
++++ b/vllm/models/inkling2/nvidia/moe.py
+@@ -35,7 +35,7 @@
+ from .ops.seq_parallel import SeqParallel
+ from .ops.trtllm_bmm import bmm, expert_plan, load_kernels
+ 
+-QuantFormat = Literal["nvfp4", "mxfp8"]
++QuantFormat = Literal["nvfp4", "mxfp8", "w4a16"]
+ 
+ 
+ class ExpertsLoRA(Protocol):
+@@ -93,7 +93,9 @@
+     # support it (e.g. BF16 ones plugged in by a model) need not define this.
+     supports_lora = False
+ 
+-    def __init__(self, config, quant_format: QuantFormat) -> None:
++    def __init__(
++        self, config, quant_format: QuantFormat, group_size: int = 128
++    ) -> None:
+         super().__init__()
+         self.ep_rank = get_tensor_model_parallel_rank()
+         self.ep_size = get_tensor_model_parallel_world_size()
+@@ -103,14 +105,19 @@
+         self.gate_cap = config.mlp_gate_softcap
+         self.up_cap = config.mlp_up_softcap
+         self.nvfp4 = quant_format == "nvfp4"
++        # 2Wild overlay: INT4 weight-only experts in the compressed-tensors
++        # pack-quantized layout, always on the Humming (SM80+) path.
++        self.w4a16 = quant_format == "w4a16"
++        self.w4a16_group = group_size
+         hidden, inter = config.hidden_size, config.intermediate_size
+         self.hidden_size, self.intermediate_size = hidden, inter
+-
++        self.shapes = ((2 * inter, hidden), (hidden, inter))
++        if self.w4a16:
++            self._init_w4a16()
+         pack, group = (2, 16) if self.nvfp4 else (1, 32)
+         weight_dtype = torch.uint8 if self.nvfp4 else torch.float8_e4m3fn
+         scale_dtype = torch.float8_e4m3fn if self.nvfp4 else torch.uint8
+-        self.shapes = ((2 * inter, hidden), (hidden, inter))
+-        for name, (n, k) in zip(("w13", "w2"), self.shapes):
++        for name, (n, k) in zip(("w13", "w2"), () if self.w4a16 else self.shapes):
+             # Rows are shuffled and block scales swizzled (``block_scales``).
+             self._register(
+                 f"{name}_weight",
+@@ -147,8 +154,10 @@
+             "ones", torch.ones(self.num_experts, dtype=torch.float32), persistent=False
+         )
+         # Humming weights are repacked after loading.
+-        self.sm100 = use_sm100_kernels()
+-        self.sm120 = current_platform.is_device_capability_family(120)
++        self.sm100 = use_sm100_kernels() and not self.w4a16
++        self.sm120 = (
++            current_platform.is_device_capability_family(120) and not self.w4a16
++        )
+         vllm_config = get_current_vllm_config_or_none()
+         self.humming_nvfp4 = (
+             self.sm120
+@@ -164,6 +173,16 @@
+                 self.topk,
+             )
+ 
++    def _init_w4a16(self) -> None:
++        """INT4 weights, 8 per int32 along K (compressed-tensors
++        pack-quantized: value + 8, element i at bits 4i) and BF16 scales
++        per `w4a16_group` K elements, one row per output channel."""
++        group = self.w4a16_group
++        for name, (n, k) in zip(("w13", "w2"), self.shapes):
++            assert k % group == 0 and k % 8 == 0, (name, n, k, group)
++            self._register(f"{name}_weight_packed", (n, k // 8), torch.int32)
++            self._register(f"{name}_weight_scale", (n, k // group), torch.bfloat16)
++
+     def _register(
+         self,
+         name: str,
+@@ -202,6 +221,9 @@
+         param.data.copy_(loaded)
+ 
+     def process_weights_after_loading(self) -> None:
++        if self.w4a16:
++            self._process_w4a16()
++            return
+         if self.sm100 or (self.sm120 and not self.humming_nvfp4):
+             return
+         weights = {}
+@@ -228,6 +250,32 @@
+                 param = getattr(self, f"{name}_{suffix}")
+                 param.data = param.data.new_empty((0,))
+ 
++    def _process_w4a16(self) -> None:
++        from vllm.utils.humming import CompressedTensorsWeightSchema
++
++        source = CompressedTensorsWeightSchema(
++            format="pack-quantized",
++            type="int",
++            num_bits=4,
++            strategy="group",
++            symmetric=True,
++            group_size=self.w4a16_group,
++        )
++        weights = {
++            name: {
++                "weight_packed": getattr(self, f"{name}_weight_packed").data,
++                "weight_scale": getattr(self, f"{name}_weight_scale").data,
++            }
++            for name in ("w13", "w2")
++        }
++        self.humming = HummingExperts(
++            weights, self.shapes, nvfp4=False, source_schema=source
++        )
++        for name in ("w13", "w2"):
++            for suffix in ("weight_packed", "weight_scale"):
++                param = getattr(self, f"{name}_{suffix}")
++                param.data = param.data.new_empty((0,))
++
+     def plan(self, tokens: int):
+         return expert_plan(tokens, self.topk, self.num_experts, self.nvfp4, self.shapes)
+ 
+@@ -325,14 +373,18 @@
+ 
+ class Inkling2MoE(nn.Module):
+     def __init__(
+-        self, config, quant_format: QuantFormat, visit_ids: Sequence[int] = (0,)
++        self,
++        config,
++        quant_format: QuantFormat,
++        visit_ids: Sequence[int] = (0,),
++        group_size: int = 128,
+     ) -> None:
+         """`visit_ids`: the routed-experts capture row of each pass of the
+         layer (`Inkling2ModelConfig.layer_visit_ids`)."""
+         super().__init__()
+         assert config.n_shared_experts == 0
+         self.gate = Inkling2Gate(config)
+-        self.experts = Inkling2Experts(config, quant_format)
++        self.experts = Inkling2Experts(config, quant_format, group_size)
+         self.routing_captures = nn.ModuleList(
+             Inkling2RoutingCapture(visit) for visit in visit_ids
+         )

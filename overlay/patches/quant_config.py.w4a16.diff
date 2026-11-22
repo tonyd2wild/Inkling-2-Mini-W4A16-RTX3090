@@ -1,0 +1,61 @@
+--- a/vllm/models/inkling2/quant_config.py
++++ b/vllm/models/inkling2/quant_config.py
+@@ -4,6 +4,12 @@
+ 
+ Only the routed experts are quantized (NVFP4 or MXFP8); they are handled by
+ `Inkling2MoE`. Every other layer runs unquantized.
++
++2Wild overlay (2026-11-20): adds a `w4a16` compute dtype, INT4 weights with
++BF16 group scales in the compressed-tensors pack-quantized layout
++(`<name>_weight_packed` int32 [E, N, K/8], `<name>_weight_scale` bf16
++[E, N, K/group]), run by the Humming weight-only expert GEMMs. A checkpoint
++whose quantized experts are all `w4a16` needs SM80+ instead of SM90+.
+ """
+ 
+ from __future__ import annotations
+@@ -19,19 +25,36 @@
+ )
+ from vllm.models.inkling2.configs import INKLING2_ARCHITECTURES
+ 
+-_COMPUTE_DTYPES = ("float32", "bfloat16", "mxfp8", "nvfp4")
++_COMPUTE_DTYPES = ("float32", "bfloat16", "mxfp8", "nvfp4", "w4a16")
+ 
+ 
+ class Inkling2QuantConfig(QuantizationConfig):
+     def __init__(self, config: dict[str, Any]) -> None:
+         super().__init__()
+         self.mxfp8_weights: set[str] = set()
++        self.w4a16_weights: set[str] = set()
++        self.w4a16_group_size = 128
++        self.w4a16_symmetric = True
++        has_fp_experts = False
+         for group in config["model"]["parameter_groups"]:
+             compute = group["compute_dtype"]
+             if compute not in _COMPUTE_DTYPES:
+                 raise ValueError(f"Unsupported Inkling2 compute dtype: {compute}")
+             if compute == "mxfp8":
+                 self.mxfp8_weights.update(group["tensors"])
++            if compute in ("mxfp8", "nvfp4"):
++                has_fp_experts = True
++            if compute == "w4a16":
++                self.w4a16_weights.update(group["tensors"])
++                block = group.get("weight_block_shape") or [1, 128]
++                self.w4a16_group_size = int(block[-1])
++                self.w4a16_symmetric = bool(group.get("symmetric", True))
++                if not self.w4a16_symmetric:
++                    raise ValueError("Inkling2 w4a16 experts must be symmetric")
++        # Instance attribute shadows the classmethod: an all-INT4 checkpoint
++        # only needs the SM80 weight-only Humming kernels.
++        min_capability = 90 if has_fp_experts or not self.w4a16_weights else 80
++        self.get_min_capability = lambda: min_capability  # type: ignore[method-assign]
+ 
+     @classmethod
+     def get_name(cls) -> QuantizationMethods:
+@@ -76,3 +99,7 @@
+     def is_mxfp8_layer(self, layer_id: int) -> bool:
+         name = f"model.llm.layers.{layer_id}.mlp.experts.w13_weight"
+         return name in self.mxfp8_weights
++
++    def is_w4a16_layer(self, layer_id: int) -> bool:
++        name = f"model.llm.layers.{layer_id}.mlp.experts.w13_weight"
++        return name in self.w4a16_weights

@@ -1,0 +1,16 @@
+--- a/vllm/models/inkling2/nvidia/ops/conv_mix.py
++++ b/vllm/models/inkling2/nvidia/ops/conv_mix.py
+@@ -89,9 +89,12 @@
+     )
+     if sp is None:
+         assert halo == 0 and positions.shape[0] == num_tokens and x.dim() == 2
+-        if current_platform.is_device_capability_family(120):
++        if current_platform.is_device_capability_family(
++            120
++        ) or not current_platform.has_device_capability(90):
+             # Native conv/mix kernels require Hopper or SM10x. Keep the
+             # loop executor's cache writes and residual rounding on SM12x.
++            # (2Wild Ampere overlay: SM8x takes this Triton path too.)
+             short_conv(
+                 x,
+                 conv_weight,

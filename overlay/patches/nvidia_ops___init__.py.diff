@@ -1,0 +1,93 @@
+--- a/vllm/models/inkling2/nvidia/ops/__init__.py
++++ b/vllm/models/inkling2/nvidia/ops/__init__.py
+@@ -11,3 +11,90 @@
+     from vllm.platforms import current_platform
+ 
+     return current_platform.is_device_capability_family(100)
++
++
++def _install_pre_sm90_shims() -> None:
++    """2Wild Ampere overlay (2026-11-20).
++
++    The Inkling2 Triton kernels use programmatic dependent launch (PDL):
++    `tl.extra.cuda.gdc_wait()` / `gdc_launch_dependents()` emit
++    `griddepcontrol`, which ptxas rejects below SM90, and `launch_pdl=True`
++    asks the driver to overlap dependent kernels. PDL is only a launch-latency
++    optimization: without it every kernel runs after the previous one in
++    stream order, so on SM8x the GDC calls become no-ops and kernels launch
++    without the PDL attribute. Nothing changes on SM90+.
++    """
++    try:
++        from vllm.platforms import current_platform
++
++        capability = current_platform.get_device_capability()
++    except Exception:
++        return
++    if capability is None or capability.major >= 9:
++        return
++
++    import triton.language.extra.cuda as tl_cuda
++    import triton.language.extra.cuda.gdc as tl_gdc
++    from triton.language import core
++
++    if getattr(tl_cuda, "_inkling2_pre_sm90", False):
++        return
++
++    @core.extern
++    def gdc_noop(_semantic=None):
++        return None
++
++    for module in (tl_cuda, tl_gdc):
++        module.gdc_wait = gdc_noop
++        module.gdc_launch_dependents = gdc_noop
++    tl_cuda._inkling2_pre_sm90 = True
++
++    # The image's fused vocab-parallel embedding kernel (TP > 1) is compiled
++    # for SM100 only; use vLLM's unfused torch path (mask, gather, fill).
++    from vllm.model_executor.layers import vocab_parallel_embedding as vpe
++
++    embedding_cls = vpe.VocabParallelEmbedding
++    if not getattr(embedding_cls, "_inkling2_unfused", False):
++        embedding_init = embedding_cls.__init__
++
++        def init_unfused(self, *args, **kwargs):
++            embedding_init(self, *args, **kwargs)
++            self.use_fused_embedding = False
++
++        embedding_cls.__init__ = init_unfused
++        embedding_cls._inkling2_unfused = True
++
++    # 2026-11-21: the DSpark draft layers write their paged KV through
++    # FlashAttentionImpl.do_kv_cache_update -> reshape_and_cache_flash, which
++    # this image compiles for SM90+ only ("no kernel image" on SM86). vLLM's
++    # Triton version takes the same arguments and writes the same layout.
++    try:
++        from vllm.v1.attention.backends import flash_attn as fa_backend
++        from vllm.v1.attention.ops.triton_reshape_and_cache_flash import (
++            triton_reshape_and_cache_flash,
++        )
++
++        if not getattr(fa_backend, "_inkling2_triton_kv_write", False):
++            fa_backend.reshape_and_cache_flash = triton_reshape_and_cache_flash
++            fa_backend._inkling2_triton_kv_write = True
++    except Exception:
++        pass
++
++    try:
++        from triton.backends.nvidia import driver as nv_driver
++    except Exception:
++        return
++    launcher_cls = getattr(nv_driver, "CudaLauncher", None)
++    if launcher_cls is None or getattr(launcher_cls, "_inkling2_no_pdl", False):
++        return
++    original_init = launcher_cls.__init__
++
++    def init_without_pdl(self, *args, **kwargs):
++        original_init(self, *args, **kwargs)
++        self.launch_pdl = False
++
++    launcher_cls.__init__ = init_without_pdl
++    launcher_cls._inkling2_no_pdl = True
++
++
++_install_pre_sm90_shims()

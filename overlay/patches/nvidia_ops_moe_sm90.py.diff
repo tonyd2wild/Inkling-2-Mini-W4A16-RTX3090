@@ -1,0 +1,118 @@
+--- a/vllm/models/inkling2/nvidia/ops/moe_sm90.py
++++ b/vllm/models/inkling2/nvidia/ops/moe_sm90.py
+@@ -30,6 +30,68 @@
+ _DEFAULT_BLOCK_M = 64
+ 
+ 
++def _torch_moe_align_block_size(
++    topk_ids: torch.Tensor,
++    block_size: int,
++    num_experts: int,
++    expert_map: torch.Tensor | None = None,
++    pad_sorted_ids: bool = False,
++    ignore_invalid_experts: bool = False,
++) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
++    """2Wild Ampere overlay: `moe_align_block_size` in torch, for GPUs the
++    image's compiled `_moe_C` kernel was not built for (it ships SM100 code
++    only). Same outputs as the CUDA op for `expert_map=None` and
++    `ignore_invalid_experts=True` (ids outside [0, E) are skipped); fixed
++    output sizes and no host syncs, so it is CUDA-graph capturable."""
++    assert expert_map is None and ignore_invalid_experts and not pad_sorted_ids
++    device = topk_ids.device
++    flat = topk_ids.reshape(-1).to(torch.int64)
++    numel = flat.numel()
++    max_padded = numel + num_experts * (block_size - 1)
++    if numel < num_experts:
++        max_padded = min(numel * block_size, max_padded)
++    max_blocks = triton.cdiv(max_padded, block_size)
++    valid = (flat >= 0) & (flat < num_experts)
++    bucket = torch.where(valid, flat, torch.full_like(flat, num_experts))
++    counts = torch.zeros(num_experts + 1, dtype=torch.int64, device=device)
++    counts.scatter_add_(0, bucket, torch.ones_like(bucket))
++    counts = counts[:num_experts]
++    padded = (counts + block_size - 1) // block_size * block_size
++    padded_end = torch.cumsum(padded, 0)
++    padded_start = padded_end - padded
++    compact_start = torch.cumsum(counts, 0) - counts
++    order = torch.argsort(bucket, stable=True)
++    sorted_bucket = bucket[order]
++    sorted_valid = sorted_bucket < num_experts
++    expert_of = torch.where(sorted_valid, sorted_bucket, torch.zeros_like(sorted_bucket))
++    rank = torch.arange(numel, device=device) - compact_start[expert_of]
++    dest = torch.where(
++        sorted_valid,
++        padded_start[expert_of] + rank,
++        torch.full_like(rank, max_padded),
++    )
++    sorted_ids = torch.full((max_padded + 1,), numel, dtype=torch.int32, device=device)
++    sorted_ids.scatter_(0, dest, order.to(torch.int32))
++    block_starts = torch.arange(max_blocks, device=device) * block_size
++    expert_ids = torch.searchsorted(padded_end, block_starts, right=True)
++    expert_ids = torch.where(
++        expert_ids < num_experts, expert_ids, torch.full_like(expert_ids, -1)
++    ).to(torch.int32)
++    num_post_pad = padded_end[-1:].to(torch.int32)
++    return sorted_ids[:max_padded], expert_ids, num_post_pad
++
++
++def _pre_sm90() -> bool:
++    from vllm.platforms import current_platform
++
++    capability = current_platform.get_device_capability()
++    return capability is not None and capability.major < 9
++
++
++if _pre_sm90():
++    moe_align_block_size = _torch_moe_align_block_size  # noqa: F811
++
++
+ @triton.jit
+ def _select_kernel(
+     Partials,
+@@ -161,6 +223,8 @@
+     """Humming tensors and kernel configs of the two expert projections.
+ 
+     Args:
++        source_schema: Optional Humming source weight schema; `weights`
++            then maps each projection to that schema's named tensors.
+         weights: Per projection (`w13`, `w2`), the row-major checkpoint
+             weights `[E, N, K / pack]`, block scales `[E, N, K / group]`
+             and, for NVFP4, the per-expert global scales `[E]` (else None).
+@@ -176,6 +240,7 @@
+         shapes: tuple[tuple[int, int], tuple[int, int]],
+         nvfp4: bool,
+         input_schema: "HummingInputSchema | None" = None,
++        source_schema=None,
+     ) -> None:
+         from vllm.utils.humming import (
+             GemmType,
+@@ -191,14 +256,22 @@
+         self.tunings: dict[str, list] = {}
+         self.tuning_strs: dict[str, str] = {}
+         for name, (n, k) in zip(("w13", "w2"), shapes):
+-            weight, scale, global_scale = weights[name]
+-            num_experts = weight.shape[0]
+-            tensors = {"weight": weight, "weight_scale": scale}
+-            if nvfp4:
+-                source = ModeloptNvfp4WeightSchema()
+-                tensors["weight_scale_2"] = global_scale
++            if source_schema is not None:
++                # 2Wild overlay: a caller-built schema and its named tensors
++                # (e.g. compressed-tensors INT4 `weight_packed`/`weight_scale`).
++                source = source_schema
++                tensors = dict(weights[name])
++                weight = next(iter(tensors.values()))
++                num_experts = weight.shape[0]
+             else:
+-                source = ModeloptMxfp8WeightSchema()
++                weight, scale, global_scale = weights[name]
++                num_experts = weight.shape[0]
++                tensors = {"weight": weight, "weight_scale": scale}
++                if nvfp4:
++                    source = ModeloptNvfp4WeightSchema()
++                    tensors["weight_scale_2"] = global_scale
++                else:
++                    source = ModeloptMxfp8WeightSchema()
+             schema, tensors = source.convert_humming(
+                 tensors=tensors,
+                 shape_n_stacks=[n],

@@ -1,0 +1,11 @@
+--- a/vllm/models/inkling2/quant_config.py
++++ b/vllm/models/inkling2/quant_config.py
+@@ -43,7 +43,7 @@
+ 
+     @classmethod
+     def get_min_capability(cls) -> int:
+-        return 90
++        return 80  # 2Wild Ampere overlay: gate lowered 90 -> 80 (kernels ported, see port/)
+ 
+     @staticmethod
+     def get_config_filenames() -> list[str]:

@@ -1,0 +1,12 @@
+--- a/vllm/models/inkling2/nvidia/vision.py
++++ b/vllm/models/inkling2/nvidia/vision.py
+@@ -91,7 +91,8 @@
+         else:
+             from vllm.vllm_flash_attn import flash_attn_varlen_func
+ 
+-            version = 2 if current_platform.is_device_capability_family(120) else 3
++            # 2Wild Ampere overlay: FA3 is Hopper-only; FA2 everywhere else.
++            version = 3 if current_platform.is_device_capability_family(90) else 2
+             out = flash_attn_varlen_func(q, k, v, fa_version=version, **kwargs)
+         return self.out_proj(out.view(hidden.shape))
+ 

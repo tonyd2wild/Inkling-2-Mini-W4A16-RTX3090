@@ -1,0 +1,23 @@
+--- a/vllm/models/inkling2/nvidia/ops/linear.py
++++ b/vllm/models/inkling2/nvidia/ops/linear.py
+@@ -214,7 +214,9 @@
+     tokens, hidden = x.shape
+     n = weight.shape[0]
+     sm120 = current_platform.is_device_capability_family(120)
+-    if tokens >= TMA_MIN_TOKENS and not sm120:
++    # 2Wild Ampere overlay: TMA descriptors need SM90+.
++    has_tma = current_platform.has_device_capability(90)
++    if tokens >= TMA_MIN_TOKENS and not sm120 and has_tma:
+         from triton.tools.tensor_descriptor import TensorDescriptor
+ 
+         out = torch.empty((1, tokens, n), dtype=out_dtype, device=x.device)
+@@ -242,7 +244,8 @@
+     split = groups > 1 and tokens < 4096
+     num_warps = 4 if block_n <= 64 else 8
+     num_stages = 4 if not split else 3 if block_n <= 64 else 2
+-    if sm120:
++    if sm120 or not has_tma:
++        # ~100 KB of shared memory on SM12x and SM86 (2Wild Ampere overlay).
+         num_stages = min(num_stages, 2)
+     out = torch.empty(
+         (groups if split else 1, tokens, n),

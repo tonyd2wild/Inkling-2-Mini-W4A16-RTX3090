@@ -1,0 +1,28 @@
+--- a/vllm/models/inkling2/nvidia/model.py
++++ b/vllm/models/inkling2/nvidia/model.py
+@@ -205,12 +205,20 @@
+             config.hidden_size, eps, num_inputs=self.num_attn_inputs
+         )
+         self.mlp_norm = Inkling2RMSNorm(config.hidden_size, eps)
+-        expert_format: QuantFormat = (
+-            "mxfp8"
+-            if quant_config is not None and quant_config.is_mxfp8_layer(layer_id)
+-            else "nvfp4"
++        expert_format: QuantFormat = "nvfp4"
++        group_size = 128
++        if quant_config is not None and quant_config.is_mxfp8_layer(layer_id):
++            expert_format = "mxfp8"
++        elif quant_config is not None and quant_config.is_w4a16_layer(layer_id):
++            # 2Wild overlay: INT4 weight-only experts (compressed-tensors).
++            expert_format = "w4a16"
++            group_size = quant_config.w4a16_group_size
++        self.mlp = Inkling2MoE(
++            config,
++            expert_format,
++            config.layer_visit_ids(layer_id),
++            group_size=group_size,
+         )
+-        self.mlp = Inkling2MoE(config, expert_format, config.layer_visit_ids(layer_id))
+         self.attn_sconv, self.mlp_sconv = (
+             Inkling2ShortConv(
+                 config.hidden_size, config.sconv_kernel_size, self.conv_state, stream
