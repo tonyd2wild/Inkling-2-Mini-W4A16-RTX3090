@@ -1,0 +1,110 @@
+--- a/vllm/model_executor/models/qwen3_dflash.py
++++ b/vllm/model_executor/models/qwen3_dflash.py
+@@ -80,6 +80,45 @@
+     """Weight loader of the MXFP8 context K/V projection: one layer's K or V
+     rows, at their offset in the stacked projection."""
+     param.data.narrow(0, row_offset, loaded_weight.shape[0]).copy_(loaded_weight)
++
++
++def _rms_norm_torch(
++    x: torch.Tensor, weight: torch.Tensor, eps: float
++) -> torch.Tensor:
++    """RMSNorm over the last dim in fp32, rounded once (as the vLLM C kernel).
++    `weight` broadcasts against `x` (e.g. one row per layer)."""
++    xf = x.float()
++    xf = xf * torch.rsqrt(xf.square().mean(-1, keepdim=True) + eps)
++    return (xf * weight.float()).to(x.dtype)
++
++
++def _rope_inplace_torch(
++    positions: torch.Tensor,
++    x: torch.Tensor,
++    head_size: int,
++    cos_sin_cache: torch.Tensor,
++    is_neox: bool,
++) -> None:
++    """In-place RoPE on `x` [tokens, heads * head_size], same layout as
++    `ops.rotary_embedding(positions, x, None, ...)`."""
++    num_tokens = x.shape[0]
++    heads = x.view(num_tokens, -1, head_size)
++    cos_sin = cos_sin_cache.index_select(0, positions)
++    rot_dim = cos_sin.shape[-1]
++    cos, sin = cos_sin.float().chunk(2, dim=-1)
++    cos, sin = cos.unsqueeze(1), sin.unsqueeze(1)
++    rot = heads[..., :rot_dim].float()
++    if is_neox:
++        x1, x2 = rot.chunk(2, dim=-1)
++    else:
++        x1, x2 = rot[..., 0::2], rot[..., 1::2]
++    o1 = x1 * cos - x2 * sin
++    o2 = x2 * cos + x1 * sin
++    if is_neox:
++        out = torch.cat((o1, o2), dim=-1)
++    else:
++        out = torch.stack((o1, o2), dim=-1).flatten(-2)
++    heads[..., :rot_dim].copy_(out.to(x.dtype))
+ 
+ 
+ def _dflash_layer_causal(config: Qwen3Config, layer_idx: int) -> bool:
+@@ -443,6 +482,9 @@
+     # Maps module paths in the draft checkpoint's quantization exclusions to
+     # this model's module paths.
+     quant_config_mapper: WeightsMapper | None = None
++    # Context K/V precompute in torch instead of the compiled ops (set in
++    # _build_fused_kv_buffers for GPUs the image has no kernels for).
++    _torch_context_ops: bool = False
+ 
+     def __init__(
+         self,
+@@ -664,6 +706,12 @@
+         # References to inner Attention layers for direct cache writes
+         self._attn_layers = [layer.self_attn.attn for layer in self.layers]
+ 
++        # Images built without SM8x kernels (e.g. TORCH_CUDA_ARCH_LIST="10.0+PTX")
++        # have no rms_norm / rotary_embedding for Ampere: use torch there.
++        self._torch_context_ops = (
++            current_platform.is_cuda() and not current_platform.has_device_capability(90)
++        )
++
+     def context_kv_modules(self) -> list[nn.Module]:
+         """The modules whose weights the context K/V path (`combine_hidden_states`
+         and `precompute_and_store_context_kv`) reads once loaded. A subclass that
+@@ -679,6 +727,10 @@
+         return modules
+ 
+     def _normalize_context_states(self, context_states: torch.Tensor) -> torch.Tensor:
++        if self._torch_context_ops:
++            return _rms_norm_torch(
++                context_states, self._hidden_norm_weight, self._rms_norm_eps
++            )
+         normed_context_states = torch.empty_like(context_states)
+         ops.rms_norm(
+             normed_context_states,
+@@ -750,6 +802,15 @@
+         cos_sin_cache = self._rope_cos_sin_cache
+         if cos_sin_cache.dtype != all_k_flat.dtype:
+             cos_sin_cache = cos_sin_cache.to(dtype=all_k_flat.dtype)
++        if self._torch_context_ops:
++            _rope_inplace_torch(
++                context_positions.repeat(num_layers),
++                all_k_flat,
++                self._rope_head_size,
++                cos_sin_cache,
++                self._rope_is_neox,
++            )
++            return
+         ops.rotary_embedding(
+             context_positions.repeat(num_layers),
+             all_k_flat,
+@@ -762,6 +823,11 @@
+     def _normalize_context_k(self, all_k: torch.Tensor) -> torch.Tensor:
+         # --- Grouped RMSNorm K across all layers ([L, num_ctx, nkv, hd]) ---
+         # The weight is selected per layer by the outermost (layer) index.
++        if self._torch_context_ops:
++            weight = self._k_norm_weights.view(
++                all_k.shape[0], *([1] * (all_k.dim() - 2)), all_k.shape[-1]
++            )
++            return _rms_norm_torch(all_k, weight, self._rms_norm_eps)
+         all_k_normed = torch.empty_like(all_k)
+         ops.rms_norm(
+             all_k_normed,

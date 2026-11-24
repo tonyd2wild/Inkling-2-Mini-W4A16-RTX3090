@@ -1,0 +1,2585 @@
+{
+ "label": "rtx3090_dflash2_k7",
+ "model": "inkling-2-mini-w4a16",
+ "ts": "2026-11-24 10:19",
+ "settings": {
+  "temperature": 0,
+  "chat_template_kwargs": {
+   "enable_thinking": false,
+   "reasoning_effort": "none"
+  },
+  "max_tokens": 1024
+ },
+ "ttft": {
+  "rows": [
+   {
+    "c": 1,
+    "ttft_med_s": 0.275,
+    "ttft_max_s": 0.282,
+    "prompt_tokens": 1671
+   },
+   {
+    "c": 2,
+    "ttft_med_s": 0.489,
+    "ttft_max_s": 0.57,
+    "prompt_tokens": 1671
+   },
+   {
+    "c": 3,
+    "ttft_med_s": 0.725,
+    "ttft_max_s": 0.753,
+    "prompt_tokens": 1678
+   },
+   {
+    "c": 4,
+    "ttft_med_s": 0.878,
+    "ttft_max_s": 2.61,
+    "prompt_tokens": 1678
+   },
+   {
+    "c": 5,
+    "ttft_med_s": 0.877,
+    "ttft_max_s": 1.908,
+    "prompt_tokens": 1673
+   },
+   {
+    "c": 6,
+    "ttft_med_s": 1.019,
+    "ttft_max_s": 1.471,
+    "prompt_tokens": 1676
+   }
+  ],
+  "foreign_requests": 0
+ },
+ "prefill": {
+  "rows": [
+   {
+    "target": 1000,
+    "prompt_tokens": 974,
+    "ttft_s": 0.163,
+    "prefill_tok_s": 5975,
+    "all_ttft_s": [
+     0.163,
+     0.178
+    ]
+   },
+   {
+    "target": 8000,
+    "prompt_tokens": 7670,
+    "ttft_s": 1.157,
+    "prefill_tok_s": 6629,
+    "all_ttft_s": [
+     1.161,
+     1.157
+    ]
+   },
+   {
+    "target": 32000,
+    "prompt_tokens": 30710,
+    "ttft_s": 4.941,
+    "prefill_tok_s": 6215,
+    "all_ttft_s": [
+     4.942,
+     4.941
+    ]
+   }
+  ],
+  "foreign_requests": 0
+ },
+ "types": {
+  "coding": {
+   "c1": {
+    "decode_med_tok_s": 279.6,
+    "ttft_med_s": 0.051,
+    "tokens_med": 301,
+    "auto_score": 1.0,
+    "spec": {
+     "drafts": 435,
+     "accepted": 1791,
+     "requests": 5,
+     "acceptance_length": 5.117,
+     "draft_acceptance_rate": 0.5882,
+     "per_pos_rate": [
+      0.86,
+      0.733,
+      0.621,
+      0.556,
+      0.494,
+      0.451,
+      0.402
+     ]
+    },
+    "foreign_requests": 0,
+    "items": [
+     {
+      "ttft_s": 0.05,
+      "ttft_content_s": 0.689,
+      "wall_s": 0.977,
+      "completion_tokens": 295,
+      "prompt_tokens": 51,
+      "decode_tok_s": 317.3,
+      "finish": "stop",
+      "reasoning_chars": 617,
+      "output": "```python\ndef merge_intervals(intervals):\n    if not intervals:\n        return []\n    intervals = sorted(intervals, key=lambda x: x[0])\n    merged = []\n    for start, end in intervals:\n        if not merged or start > merged[-1][1]:\n            merged.append([start, end])\n        else:\n            merged[-1][1] = max(merged[-1][1], end)\n    return merged\n```",
+      "id": "code1",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 53,
+       "accepted": 242,
+       "requests": 1,
+       "acceptance_length": 5.566,
+       "draft_acceptance_rate": 0.6523,
+       "per_pos_rate": [
+        0.887,
+        0.792,
+        0.717,
+        0.642,
+        0.566,
+        0.509,
+        0.453
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.059,
+      "ttft_content_s": 2.895,
+      "wall_s": 3.375,
+      "completion_tokens": 928,
+      "prompt_tokens": 88,
+      "decode_tok_s": 279.6,
+      "finish": "stop",
+      "reasoning_chars": 2089,
+      "output": "```python\nimport re\n\ndef parse_duration(s):\n    if not isinstance(s, str):\n        raise TypeError(\"s must be a string\")\n    m = re.fullmatch(r'(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)?', s)\n    if not m or (m.group(1) is None and m.group(2) is None and m.group(3) is None):\n        raise ValueError(\"invalid duration\")\n    h = int(m.group(1) or 0)\n    mi = int(m.group(2) or 0)\n    sec = int(m.group(3) or 0)\n    return h * 3600 + mi * 60 + sec\n```",
+      "id": "code2",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 185,
+       "accepted": 742,
+       "requests": 1,
+       "acceptance_length": 5.011,
+       "draft_acceptance_rate": 0.573,
+       "per_pos_rate": [
+        0.838,
+        0.714,
+        0.605,
+        0.541,
+        0.481,
+        0.438,
+        0.395
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.051,
+      "ttft_content_s": 1.086,
+      "wall_s": 1.249,
+      "completion_tokens": 301,
+      "prompt_tokens": 52,
+      "decode_tok_s": 250.3,
+      "finish": "stop",
+      "reasoning_chars": 907,
+      "output": "```python\nfrom collections import Counter\n\ndef top_k_frequent(words, k):\n    if k <= 0:\n        return []\n    counts = Counter(words)\n    return sorted(counts, key=lambda w: (-counts[w], w))[:k]\n```",
+      "id": "code3",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 68,
+       "accepted": 233,
+       "requests": 1,
+       "acceptance_length": 4.426,
+       "draft_acceptance_rate": 0.4895,
+       "per_pos_rate": [
+        0.794,
+        0.632,
+        0.5,
+        0.456,
+        0.412,
+        0.353,
+        0.279
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.139,
+      "ttft_content_s": 0.708,
+      "wall_s": 0.948,
+      "completion_tokens": 223,
+      "prompt_tokens": 137,
+      "decode_tok_s": 274.5,
+      "finish": "stop",
+      "reasoning_chars": 467,
+      "output": "```python\ndef binary_search(a, target):\n    lo, hi = 0, len(a)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if a[mid] == target:\n            return mid\n        if a[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid\n    return -1\n```",
+      "id": "code4",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 46,
+       "accepted": 177,
+       "requests": 1,
+       "acceptance_length": 4.848,
+       "draft_acceptance_rate": 0.5497,
+       "per_pos_rate": [
+        0.913,
+        0.761,
+        0.543,
+        0.457,
+        0.413,
+        0.413,
+        0.348
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.049,
+      "ttft_content_s": 1.17,
+      "wall_s": 1.515,
+      "completion_tokens": 480,
+      "prompt_tokens": 42,
+      "decode_tok_s": 326.6,
+      "finish": "stop",
+      "reasoning_chars": 1079,
+      "output": "```python\ndef roman_to_int(s):\n    values = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}\n    total = 0\n    for i, ch in enumerate(s):\n        v = values[ch]\n        if i + 1 < len(s) and v < values[s[i + 1]]:\n            total -= v\n        else:\n            total += v\n    return total\n```",
+      "id": "code5",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 83,
+       "accepted": 397,
+       "requests": 1,
+       "acceptance_length": 5.783,
+       "draft_acceptance_rate": 0.6833,
+       "per_pos_rate": [
+        0.916,
+        0.807,
+        0.735,
+        0.675,
+        0.59,
+        0.542,
+        0.518
+       ]
+      }
+     }
+    ]
+   },
+   "levels": [
+    {
+     "c": 2,
+     "agg_tok_s": 329.7,
+     "per_stream_decode_med_tok_s": 257.2,
+     "ttft_med_s": 0.084,
+     "tokens": 1064,
+     "wall_s": 3.23,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 218,
+      "accepted": 846,
+      "requests": 2,
+      "acceptance_length": 4.881,
+      "draft_acceptance_rate": 0.5544,
+      "per_pos_rate": [
+       0.844,
+       0.697,
+       0.592,
+       0.518,
+       0.459,
+       0.413,
+       0.358
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 3,
+     "agg_tok_s": 275.3,
+     "per_stream_decode_med_tok_s": 198.7,
+     "ttft_med_s": 1.731,
+     "tokens": 1273,
+     "wall_s": 4.62,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 265,
+      "accepted": 1007,
+      "requests": 3,
+      "acceptance_length": 4.8,
+      "draft_acceptance_rate": 0.5429,
+      "per_pos_rate": [
+       0.842,
+       0.687,
+       0.566,
+       0.521,
+       0.445,
+       0.392,
+       0.347
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 4,
+     "agg_tok_s": 478.8,
+     "per_stream_decode_med_tok_s": 194.4,
+     "ttft_med_s": 0.149,
+     "tokens": 1742,
+     "wall_s": 3.64,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 364,
+      "accepted": 1377,
+      "requests": 4,
+      "acceptance_length": 4.783,
+      "draft_acceptance_rate": 0.5404,
+      "per_pos_rate": [
+       0.841,
+       0.703,
+       0.571,
+       0.497,
+       0.437,
+       0.385,
+       0.349
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 5,
+     "agg_tok_s": 586.4,
+     "per_stream_decode_med_tok_s": 199.9,
+     "ttft_med_s": 0.164,
+     "tokens": 2042,
+     "wall_s": 3.48,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 407,
+      "accepted": 1635,
+      "requests": 5,
+      "acceptance_length": 5.017,
+      "draft_acceptance_rate": 0.5739,
+      "per_pos_rate": [
+       0.877,
+       0.732,
+       0.619,
+       0.545,
+       0.464,
+       0.415,
+       0.364
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 6,
+     "agg_tok_s": 677.4,
+     "per_stream_decode_med_tok_s": 195.9,
+     "ttft_med_s": 0.168,
+     "tokens": 2400,
+     "wall_s": 3.54,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 467,
+      "accepted": 1933,
+      "requests": 6,
+      "acceptance_length": 5.139,
+      "draft_acceptance_rate": 0.5913,
+      "per_pos_rate": [
+       0.852,
+       0.743,
+       0.642,
+       0.567,
+       0.495,
+       0.445,
+       0.394
+      ]
+     },
+     "foreign_requests": 0
+    }
+   ]
+  },
+  "math": {
+   "c1": {
+    "decode_med_tok_s": 299.3,
+    "ttft_med_s": 0.056,
+    "tokens_med": 367,
+    "auto_score": 1.0,
+    "spec": {
+     "drafts": 342,
+     "accepted": 1380,
+     "requests": 5,
+     "acceptance_length": 5.035,
+     "draft_acceptance_rate": 0.5764,
+     "per_pos_rate": [
+      0.895,
+      0.719,
+      0.643,
+      0.558,
+      0.491,
+      0.392,
+      0.336
+     ]
+    },
+    "foreign_requests": 0,
+    "items": [
+     {
+      "ttft_s": 0.055,
+      "ttft_content_s": 0.901,
+      "wall_s": 1.418,
+      "completion_tokens": 409,
+      "prompt_tokens": 69,
+      "decode_tok_s": 299.3,
+      "finish": "stop",
+      "reasoning_chars": 544,
+      "output": "Let Ben\u2019s current age be \\(b\\).  \nAna is twice as old, so Ana\u2019s current age is \\(2b\\).\n\nIn 6 years:\n- Ana will be \\(2b + 6\\)\n- Ben will be \\(b + 6\\)\n\nSet up the equation:\n\\[\n2b + 6 = 1.5(b + 6)\n\\]\n\nExpand:\n\\[\n2b + 6 = 1.5b + 9\n\\]\n\nSubtract \\(1.5b\\) from both sides:\n\\[\n0.5b + 6 = 9\n\\]\n\nSubtract 6:\n\\[\n0.5b = 3\n\\]\n\nDivide by 0.5:\n\\[\nb = 6\n\\]\n\nANSWER: 6 years old",
+      "id": "math1",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 78,
+       "accepted": 331,
+       "requests": 1,
+       "acceptance_length": 5.244,
+       "draft_acceptance_rate": 0.6062,
+       "per_pos_rate": [
+        0.872,
+        0.718,
+        0.654,
+        0.603,
+        0.538,
+        0.449,
+        0.41
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.056,
+      "ttft_content_s": 0.483,
+      "wall_s": 0.8,
+      "completion_tokens": 238,
+      "prompt_tokens": 66,
+      "decode_tok_s": 318.3,
+      "finish": "stop",
+      "reasoning_chars": 443,
+      "output": "There are \\(2^4 = 16\\) total possible outcomes when flipping a fair coin 4 times.\n\nTo get exactly 2 heads, choose which 2 of the 4 flips are heads:\n\n\\[\n\\binom{4}{2}=\\frac{4!}{2!2!}=6\n\\]\n\nSo the probability is:\n\n\\[\n\\frac{6}{16}=\\frac{3}{8}\n\\]\n\nANSWER: 3/8",
+      "id": "math2",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 43,
+       "accepted": 196,
+       "requests": 1,
+       "acceptance_length": 5.558,
+       "draft_acceptance_rate": 0.6512,
+       "per_pos_rate": [
+        0.977,
+        0.767,
+        0.698,
+        0.628,
+        0.581,
+        0.488,
+        0.419
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.059,
+      "ttft_content_s": 1.339,
+      "wall_s": 1.554,
+      "completion_tokens": 390,
+      "prompt_tokens": 94,
+      "decode_tok_s": 260.3,
+      "finish": "stop",
+      "reasoning_chars": 965,
+      "output": "Cost of 7 notebooks: 7 \u00d7 $3.40 = $23.80  \nChange from $50: $50.00 \u2212 $23.80 = $26.20  \nRefund for 2 notebooks: 2 \u00d7 $3.40 = $6.80  \nMoney left: $26.20 + $6.80 = $33.00  \n\nANSWER: $33.00",
+      "id": "math3",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 85,
+       "accepted": 305,
+       "requests": 1,
+       "acceptance_length": 4.588,
+       "draft_acceptance_rate": 0.5126,
+       "per_pos_rate": [
+        0.871,
+        0.682,
+        0.612,
+        0.494,
+        0.4,
+        0.294,
+        0.235
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.059,
+      "ttft_content_s": 0.98,
+      "wall_s": 1.266,
+      "completion_tokens": 317,
+      "prompt_tokens": 88,
+      "decode_tok_s": 261.7,
+      "finish": "stop",
+      "reasoning_chars": 827,
+      "output": "The trains move toward each other, so their relative speed is:\n\n70 km/h + 80 km/h = 150 km/h\n\nThey are 300 km apart, so the time until they meet is:\n\n300 km \u00f7 150 km/h = 2 h\n\nThe bird flies the whole time at 120 km/h, so it flies:\n\n120 km/h \u00d7 2 h = 240 km\n\nANSWER: 240 km",
+      "id": "math4",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 69,
+       "accepted": 248,
+       "requests": 1,
+       "acceptance_length": 4.594,
+       "draft_acceptance_rate": 0.5135,
+       "per_pos_rate": [
+        0.855,
+        0.623,
+        0.551,
+        0.464,
+        0.42,
+        0.348,
+        0.333
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.051,
+      "ttft_content_s": 0.683,
+      "wall_s": 1.212,
+      "completion_tokens": 367,
+      "prompt_tokens": 53,
+      "decode_tok_s": 315.0,
+      "finish": "stop",
+      "reasoning_chars": 448,
+      "output": "Step 1: Reduce the base modulo 5.\n7 \u2261 2 (mod 5)\n\nStep 2: Find the pattern of powers of 2 modulo 5.\n2^1 \u2261 2 (mod 5)\n2^2 \u2261 4 (mod 5)\n2^3 \u2261 8 \u2261 3 (mod 5)\n2^4 \u2261 16 \u2261 1 (mod 5)\n\nThe cycle length is 4.\n\nStep 3: Reduce the exponent modulo 4.\n100 \u00f7 4 = 25 remainder 0\nSo 100 \u2261 0 (mod 4)\n\nStep 4: Apply the cycle.\n2^100 \u2261 (2^4)^25 \u2261 1^25 \u2261 1 (mod 5)\n\nANSWER: 1",
+      "id": "math5",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 67,
+       "accepted": 300,
+       "requests": 1,
+       "acceptance_length": 5.478,
+       "draft_acceptance_rate": 0.6397,
+       "per_pos_rate": [
+        0.94,
+        0.836,
+        0.731,
+        0.642,
+        0.567,
+        0.433,
+        0.328
+       ]
+      }
+     }
+    ]
+   },
+   "levels": [
+    {
+     "c": 2,
+     "agg_tok_s": 390.8,
+     "per_stream_decode_med_tok_s": 251.1,
+     "ttft_med_s": 0.153,
+     "tokens": 660,
+     "wall_s": 1.69,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 121,
+      "accepted": 539,
+      "requests": 2,
+      "acceptance_length": 5.455,
+      "draft_acceptance_rate": 0.6364,
+      "per_pos_rate": [
+       0.917,
+       0.793,
+       0.702,
+       0.636,
+       0.537,
+       0.455,
+       0.413
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 3,
+     "agg_tok_s": 502.2,
+     "per_stream_decode_med_tok_s": 224.1,
+     "ttft_med_s": 0.092,
+     "tokens": 1050,
+     "wall_s": 2.09,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 216,
+      "accepted": 835,
+      "requests": 3,
+      "acceptance_length": 4.866,
+      "draft_acceptance_rate": 0.5522,
+      "per_pos_rate": [
+       0.875,
+       0.708,
+       0.62,
+       0.542,
+       0.449,
+       0.356,
+       0.315
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 4,
+     "agg_tok_s": 609.9,
+     "per_stream_decode_med_tok_s": 197.3,
+     "ttft_med_s": 0.099,
+     "tokens": 1332,
+     "wall_s": 2.18,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 278,
+      "accepted": 1055,
+      "requests": 4,
+      "acceptance_length": 4.795,
+      "draft_acceptance_rate": 0.5421,
+      "per_pos_rate": [
+       0.867,
+       0.683,
+       0.608,
+       0.514,
+       0.446,
+       0.36,
+       0.317
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 5,
+     "agg_tok_s": 741.2,
+     "per_stream_decode_med_tok_s": 178.3,
+     "ttft_med_s": 0.153,
+     "tokens": 1586,
+     "wall_s": 2.14,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 332,
+      "accepted": 1256,
+      "requests": 5,
+      "acceptance_length": 4.783,
+      "draft_acceptance_rate": 0.5404,
+      "per_pos_rate": [
+       0.87,
+       0.672,
+       0.59,
+       0.515,
+       0.452,
+       0.373,
+       0.31
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 6,
+     "agg_tok_s": 893.3,
+     "per_stream_decode_med_tok_s": 173.8,
+     "ttft_med_s": 0.155,
+     "tokens": 2019,
+     "wall_s": 2.26,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 411,
+      "accepted": 1610,
+      "requests": 6,
+      "acceptance_length": 4.917,
+      "draft_acceptance_rate": 0.5596,
+      "per_pos_rate": [
+       0.871,
+       0.693,
+       0.611,
+       0.547,
+       0.467,
+       0.401,
+       0.326
+      ]
+     },
+     "foreign_requests": 0
+    }
+   ]
+  },
+  "json": {
+   "c1": {
+    "decode_med_tok_s": 340.0,
+    "ttft_med_s": 0.058,
+    "tokens_med": 163,
+    "auto_score": 1.0,
+    "spec": {
+     "drafts": 164,
+     "accepted": 703,
+     "requests": 5,
+     "acceptance_length": 5.287,
+     "draft_acceptance_rate": 0.6124,
+     "per_pos_rate": [
+      0.841,
+      0.756,
+      0.689,
+      0.604,
+      0.518,
+      0.451,
+      0.427
+     ]
+    },
+    "foreign_requests": 0,
+    "items": [
+     {
+      "ttft_s": 0.115,
+      "ttft_content_s": 0.879,
+      "wall_s": 1.007,
+      "completion_tokens": 210,
+      "prompt_tokens": 101,
+      "decode_tok_s": 234.4,
+      "finish": "stop",
+      "reasoning_chars": 506,
+      "output": "{\"invoice_id\":4471,\"customer\":\"Marta Ruiz\",\"issued\":\"2026-03-14\",\"amount\":1250.50,\"due_days\":30}",
+      "id": "json1",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 51,
+       "accepted": 159,
+       "requests": 1,
+       "acceptance_length": 4.118,
+       "draft_acceptance_rate": 0.4454,
+       "per_pos_rate": [
+        0.706,
+        0.588,
+        0.49,
+        0.431,
+        0.353,
+        0.294,
+        0.255
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.056,
+      "ttft_content_s": 0.431,
+      "wall_s": 0.54,
+      "completion_tokens": 189,
+      "prompt_tokens": 66,
+      "decode_tok_s": 387.8,
+      "finish": "stop",
+      "reasoning_chars": 340,
+      "output": "[{\"name\":\"apple\",\"qty\":3,\"price\":0.5},{\"name\":\"pear\",\"qty\":2,\"price\":0.75}]",
+      "id": "json2",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 28,
+       "accepted": 161,
+       "requests": 1,
+       "acceptance_length": 6.75,
+       "draft_acceptance_rate": 0.8214,
+       "per_pos_rate": [
+        1.0,
+        0.893,
+        0.893,
+        0.857,
+        0.75,
+        0.679,
+        0.679
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.056,
+      "ttft_content_s": 0.469,
+      "wall_s": 0.523,
+      "completion_tokens": 163,
+      "prompt_tokens": 69,
+      "decode_tok_s": 346.3,
+      "finish": "stop",
+      "reasoning_chars": 365,
+      "output": "{\"user\":\"sam\",\"tags\":[\"a\",\"b\"],\"active\":true}",
+      "id": "json3",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 27,
+       "accepted": 136,
+       "requests": 1,
+       "acceptance_length": 6.037,
+       "draft_acceptance_rate": 0.7196,
+       "per_pos_rate": [
+        0.963,
+        0.889,
+        0.815,
+        0.667,
+        0.63,
+        0.556,
+        0.519
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.058,
+      "ttft_content_s": 0.398,
+      "wall_s": 0.47,
+      "completion_tokens": 141,
+      "prompt_tokens": 86,
+      "decode_tok_s": 340.0,
+      "finish": "stop",
+      "reasoning_chars": 297,
+      "output": "{\"Oslo\":4,\"Cairo\":31,\"Lima\":19.5}",
+      "id": "json4",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 24,
+       "accepted": 117,
+       "requests": 1,
+       "acceptance_length": 5.875,
+       "draft_acceptance_rate": 0.6964,
+       "per_pos_rate": [
+        0.958,
+        0.875,
+        0.75,
+        0.708,
+        0.625,
+        0.5,
+        0.458
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.058,
+      "ttft_content_s": 0.542,
+      "wall_s": 0.65,
+      "completion_tokens": 163,
+      "prompt_tokens": 81,
+      "decode_tok_s": 273.6,
+      "finish": "stop",
+      "reasoning_chars": 408,
+      "output": "{\"id\":7,\"name\":\"Widget\",\"price\":19.99,\"in_stock\":true,\"tags\":[\"tools\",\"home\"]}",
+      "id": "json5",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 34,
+       "accepted": 130,
+       "requests": 1,
+       "acceptance_length": 4.824,
+       "draft_acceptance_rate": 0.5462,
+       "per_pos_rate": [
+        0.735,
+        0.706,
+        0.676,
+        0.529,
+        0.412,
+        0.382,
+        0.382
+       ]
+      }
+     }
+    ]
+   },
+   "levels": [
+    {
+     "c": 2,
+     "agg_tok_s": 380.4,
+     "per_stream_decode_med_tok_s": 267.1,
+     "ttft_med_s": 0.062,
+     "tokens": 399,
+     "wall_s": 1.05,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 79,
+      "accepted": 320,
+      "requests": 2,
+      "acceptance_length": 5.051,
+      "draft_acceptance_rate": 0.5787,
+      "per_pos_rate": [
+       0.81,
+       0.671,
+       0.62,
+       0.557,
+       0.494,
+       0.456,
+       0.443
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 3,
+     "agg_tok_s": 460.4,
+     "per_stream_decode_med_tok_s": 246.8,
+     "ttft_med_s": 0.175,
+     "tokens": 561,
+     "wall_s": 1.22,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 108,
+      "accepted": 453,
+      "requests": 3,
+      "acceptance_length": 5.194,
+      "draft_acceptance_rate": 0.5992,
+      "per_pos_rate": [
+       0.852,
+       0.713,
+       0.648,
+       0.583,
+       0.5,
+       0.454,
+       0.444
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 4,
+     "agg_tok_s": 596.3,
+     "per_stream_decode_med_tok_s": 225.9,
+     "ttft_med_s": 0.102,
+     "tokens": 703,
+     "wall_s": 1.18,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 132,
+      "accepted": 571,
+      "requests": 4,
+      "acceptance_length": 5.326,
+      "draft_acceptance_rate": 0.618,
+      "per_pos_rate": [
+       0.871,
+       0.735,
+       0.682,
+       0.606,
+       0.523,
+       0.462,
+       0.447
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 5,
+     "agg_tok_s": 685.8,
+     "per_stream_decode_med_tok_s": 223.3,
+     "ttft_med_s": 0.109,
+     "tokens": 871,
+     "wall_s": 1.27,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 163,
+      "accepted": 709,
+      "requests": 5,
+      "acceptance_length": 5.35,
+      "draft_acceptance_rate": 0.6214,
+      "per_pos_rate": [
+       0.847,
+       0.761,
+       0.712,
+       0.607,
+       0.528,
+       0.454,
+       0.442
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 6,
+     "agg_tok_s": 777.3,
+     "per_stream_decode_med_tok_s": 184.8,
+     "ttft_med_s": 0.116,
+     "tokens": 1075,
+     "wall_s": 1.38,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 216,
+      "accepted": 859,
+      "requests": 6,
+      "acceptance_length": 4.977,
+      "draft_acceptance_rate": 0.5681,
+      "per_pos_rate": [
+       0.829,
+       0.713,
+       0.625,
+       0.551,
+       0.463,
+       0.407,
+       0.389
+      ]
+     },
+     "foreign_requests": 0
+    }
+   ]
+  },
+  "html": {
+   "c1": {
+    "decode_med_tok_s": 266.0,
+    "ttft_med_s": 0.057,
+    "tokens_med": 356,
+    "auto_score": 1.0,
+    "spec": {
+     "drafts": 406,
+     "accepted": 1592,
+     "requests": 5,
+     "acceptance_length": 4.921,
+     "draft_acceptance_rate": 0.5602,
+     "per_pos_rate": [
+      0.842,
+      0.724,
+      0.623,
+      0.53,
+      0.443,
+      0.399,
+      0.36
+     ]
+    },
+    "foreign_requests": 0,
+    "items": [
+     {
+      "ttft_s": 0.056,
+      "ttft_content_s": 0.646,
+      "wall_s": 1.269,
+      "completion_tokens": 356,
+      "prompt_tokens": 76,
+      "decode_tok_s": 292.6,
+      "finish": "stop",
+      "reasoning_chars": 541,
+      "output": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Spark Bench</title>\n</head>\n<body>\n  <header>\n    <h1>Spark Bench</h1>\n    <nav>\n      <a href=\"#home\">Home</a>\n      <a href=\"#results\">Results</a>\n      <a href=\"#method\">Method</a>\n    </nav>\n  </header>\n  <main>\n    <section id=\"summary\">\n      <p>Spark Bench summarizes benchmark results and the method used to measure performance.</p>\n    </section>\n  </main>\n</body>\n</html>",
+      "id": "html1",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 68,
+       "accepted": 288,
+       "requests": 1,
+       "acceptance_length": 5.235,
+       "draft_acceptance_rate": 0.605,
+       "per_pos_rate": [
+        0.838,
+        0.75,
+        0.676,
+        0.603,
+        0.5,
+        0.456,
+        0.412
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.057,
+      "ttft_content_s": 0.703,
+      "wall_s": 1.162,
+      "completion_tokens": 347,
+      "prompt_tokens": 79,
+      "decode_tok_s": 313.1,
+      "finish": "stop",
+      "reasoning_chars": 475,
+      "output": "<table>\n  <thead>\n    <tr>\n      <th scope=\"col\">Lane</th>\n      <th scope=\"col\">Decode tok/s</th>\n      <th scope=\"col\">TTFT s</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>NVFP4</td>\n      <td>64.0</td>\n      <td>1.54</td>\n    </tr>\n    <tr>\n      <td>EXL3</td>\n      <td>61.5</td>\n      <td>0.52</td>\n    </tr>\n  </tbody>\n</table>",
+      "id": "html2",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 62,
+       "accepted": 285,
+       "requests": 1,
+       "acceptance_length": 5.597,
+       "draft_acceptance_rate": 0.6567,
+       "per_pos_rate": [
+        0.871,
+        0.823,
+        0.726,
+        0.613,
+        0.565,
+        0.516,
+        0.484
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.057,
+      "ttft_content_s": 0.842,
+      "wall_s": 1.28,
+      "completion_tokens": 321,
+      "prompt_tokens": 75,
+      "decode_tok_s": 261.7,
+      "finish": "stop",
+      "reasoning_chars": 605,
+      "output": "<form>\n  <label for=\"email\">Email</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required>\n\n  <label for=\"lane\">Lane</label>\n  <select id=\"lane\" name=\"lane\">\n    <option value=\"NVFP4\">NVFP4</option>\n    <option value=\"EXL3\">EXL3</option>\n  </select>\n\n  <label for=\"notes\">Notes</label>\n  <textarea id=\"notes\" name=\"notes\"></textarea>\n\n  <button type=\"submit\">Submit</button>\n</form>",
+      "id": "html3",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 69,
+       "accepted": 253,
+       "requests": 1,
+       "acceptance_length": 4.667,
+       "draft_acceptance_rate": 0.5238,
+       "per_pos_rate": [
+        0.797,
+        0.652,
+        0.594,
+        0.464,
+        0.406,
+        0.406,
+        0.348
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.058,
+      "ttft_content_s": 1.154,
+      "wall_s": 1.461,
+      "completion_tokens": 368,
+      "prompt_tokens": 79,
+      "decode_tok_s": 261.5,
+      "finish": "stop",
+      "reasoning_chars": 852,
+      "output": "<a href=\"#main\" class=\"skip\">Skip to content</a>\n<nav aria-label=\"Main\">\n  <ul>\n    <li><a href=\"#home\">Home</a></li>\n    <li><a href=\"#about\">About</a></li>\n    <li><a href=\"#services\">Services</a></li>\n    <li><a href=\"#contact\">Contact</a></li>\n  </ul>\n</nav>",
+      "id": "html4",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 79,
+       "accepted": 288,
+       "requests": 1,
+       "acceptance_length": 4.646,
+       "draft_acceptance_rate": 0.5208,
+       "per_pos_rate": [
+        0.848,
+        0.722,
+        0.557,
+        0.481,
+        0.38,
+        0.342,
+        0.316
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.057,
+      "ttft_content_s": 0.951,
+      "wall_s": 2.331,
+      "completion_tokens": 606,
+      "prompt_tokens": 73,
+      "decode_tok_s": 266.0,
+      "finish": "stop",
+      "reasoning_chars": 667,
+      "output": "<style>\n  .card {\n    max-width: 320px;\n    border-radius: 16px;\n    overflow: hidden;\n    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);\n    font-family: Arial, sans-serif;\n    background: #fff;\n  }\n  .card img {\n    width: 100%;\n    height: 180px;\n    object-fit: cover;\n    display: block;\n  }\n  .card h2 {\n    margin: 16px 16px 8px;\n    font-size: 1.25rem;\n    color: #222;\n  }\n  .card p {\n    margin: 0 16px 16px;\n    color: #555;\n    line-height: 1.5;\n  }\n  .btn {\n    display: inline-block;\n    margin: 0 16px 16px;\n    padding: 10px 16px;\n    border-radius: 8px;\n    background: #2563eb;\n    color: #fff;\n    text-decoration: none;\n    font-weight: 600;\n  }\n  .btn:hover {\n    background: #1d4ed8;\n  }\n</style>\n<div class=\"card\">\n  <img src=\"https://via.placeholder.com/640x360?text=Card\" alt=\"Placeholder image for a featured card\">\n  <h2>Featured Item</h2>\n  <p>A short description of the card content goes here.</p>\n  <a class=\"btn\" href=\"#\">Learn More</a>\n</div>",
+      "id": "html5",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 128,
+       "accepted": 478,
+       "requests": 1,
+       "acceptance_length": 4.734,
+       "draft_acceptance_rate": 0.5335,
+       "per_pos_rate": [
+        0.852,
+        0.703,
+        0.602,
+        0.516,
+        0.414,
+        0.344,
+        0.305
+       ]
+      }
+     }
+    ]
+   },
+   "levels": [
+    {
+     "c": 2,
+     "agg_tok_s": 492.5,
+     "per_stream_decode_med_tok_s": 285.0,
+     "ttft_med_s": 0.17,
+     "tokens": 773,
+     "wall_s": 1.57,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 130,
+      "accepted": 643,
+      "requests": 2,
+      "acceptance_length": 5.946,
+      "draft_acceptance_rate": 0.7066,
+      "per_pos_rate": [
+       0.9,
+       0.823,
+       0.777,
+       0.7,
+       0.623,
+       0.592,
+       0.531
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 3,
+     "agg_tok_s": 616.7,
+     "per_stream_decode_med_tok_s": 214.9,
+     "ttft_med_s": 0.092,
+     "tokens": 1139,
+     "wall_s": 1.85,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 205,
+      "accepted": 934,
+      "requests": 3,
+      "acceptance_length": 5.556,
+      "draft_acceptance_rate": 0.6509,
+      "per_pos_rate": [
+       0.888,
+       0.78,
+       0.702,
+       0.654,
+       0.551,
+       0.507,
+       0.473
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 4,
+     "agg_tok_s": 681.5,
+     "per_stream_decode_med_tok_s": 194.8,
+     "ttft_med_s": 0.192,
+     "tokens": 1415,
+     "wall_s": 2.08,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 278,
+      "accepted": 1137,
+      "requests": 4,
+      "acceptance_length": 5.09,
+      "draft_acceptance_rate": 0.5843,
+      "per_pos_rate": [
+       0.863,
+       0.734,
+       0.64,
+       0.561,
+       0.471,
+       0.435,
+       0.385
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 5,
+     "agg_tok_s": 598.4,
+     "per_stream_decode_med_tok_s": 198.8,
+     "ttft_med_s": 0.338,
+     "tokens": 2310,
+     "wall_s": 3.86,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 445,
+      "accepted": 1864,
+      "requests": 5,
+      "acceptance_length": 5.189,
+      "draft_acceptance_rate": 0.5984,
+      "per_pos_rate": [
+       0.872,
+       0.742,
+       0.645,
+       0.589,
+       0.483,
+       0.449,
+       0.409
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 6,
+     "agg_tok_s": 741.4,
+     "per_stream_decode_med_tok_s": 191.1,
+     "ttft_med_s": 0.106,
+     "tokens": 2840,
+     "wall_s": 3.83,
+     "auto_score": 1.0,
+     "spec": {
+      "drafts": 521,
+      "accepted": 2320,
+      "requests": 6,
+      "acceptance_length": 5.453,
+      "draft_acceptance_rate": 0.6361,
+      "per_pos_rate": [
+       0.885,
+       0.768,
+       0.689,
+       0.624,
+       0.539,
+       0.501,
+       0.447
+      ]
+     },
+     "foreign_requests": 0
+    }
+   ]
+  },
+  "prose": {
+   "c1": {
+    "decode_med_tok_s": 234.7,
+    "ttft_med_s": 0.049,
+    "tokens_med": 976,
+    "auto_score": 0.6,
+    "spec": {
+     "drafts": 1004,
+     "accepted": 3274,
+     "requests": 5,
+     "acceptance_length": 4.261,
+     "draft_acceptance_rate": 0.4659,
+     "per_pos_rate": [
+      0.79,
+      0.597,
+      0.498,
+      0.41,
+      0.352,
+      0.318,
+      0.297
+     ]
+    },
+    "foreign_requests": 0,
+    "items": [
+     {
+      "ttft_s": 0.047,
+      "ttft_content_s": 3.406,
+      "wall_s": 3.9,
+      "completion_tokens": 976,
+      "prompt_tokens": 35,
+      "decode_tok_s": 253.1,
+      "finish": "stop",
+      "reasoning_chars": 3074,
+      "output": "Tensor parallelism is a way to make a very large calculation run on several computers at once. Instead of giving each computer a different whole example, you cut the math itself into pieces. Imagine a giant matrix\u2014a grid of numbers\u2014that represents a layer of a neural network. One GPU can\u2019t hold it all, so the matrix is sliced into smaller blocks. Each GPU computes its block, then the results are combined, often by adding partial sums. In a neural network, this can happen inside a single layer: one device handles part of the weights, another handles another part, and they pass information back and forth. It\u2019s different from data parallelism, where each computer handles a different batch of examples. Tensor parallelism helps when the model is too big for one machine, but it has a cost: the devices must communicate constantly, so it works best when they\u2019re connected very quickly, like inside a cluster of GPUs. In short, tensor parallelism splits the problem, not the data, so a huge model can be computed in parallel.",
+      "id": "prose1",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 217,
+       "accepted": 759,
+       "requests": 1,
+       "acceptance_length": 4.498,
+       "draft_acceptance_rate": 0.4997,
+       "per_pos_rate": [
+        0.788,
+        0.608,
+        0.493,
+        0.452,
+        0.41,
+        0.378,
+        0.369
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.051,
+      "ttft_content_s": 2.525,
+      "wall_s": 2.906,
+      "completion_tokens": 738,
+      "prompt_tokens": 55,
+      "decode_tok_s": 258.2,
+      "finish": "stop",
+      "reasoning_chars": 2352,
+      "output": "Meet a compact AI workstation built for serious local model work without a bulky tower. The 128 GB unified memory pool lets you load large language models, vision pipelines, and fine-tuning jobs in one place, reducing data copying and keeping context close to the processor. A quiet fan curve, slim chassis, and dense internal layout make it easy to place beside a monitor or on a desk. It supports fast storage, high-bandwidth memory access, and practical expansion for GPUs, accelerators, and external storage. Designed for developers, researchers, and small teams, it turns everyday hardware into a dependable environment for prototyping, evaluation, and production-style testing. Expect smoother iteration, fewer memory bottlenecks, and a cleaner workflow from first prompt to final benchmark.",
+      "id": "prose2",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 161,
+       "accepted": 577,
+       "requests": 1,
+       "acceptance_length": 4.584,
+       "draft_acceptance_rate": 0.512,
+       "per_pos_rate": [
+        0.783,
+        0.627,
+        0.522,
+        0.453,
+        0.429,
+        0.391,
+        0.379
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.048,
+      "ttft_content_s": 2.128,
+      "wall_s": 2.363,
+      "completion_tokens": 517,
+      "prompt_tokens": 38,
+      "decode_tok_s": 222.9,
+      "finish": "stop",
+      "reasoning_chars": 1467,
+      "output": "Subject: Re: Meeting Request\n\nHi [Name],\n\nThank you for the invitation. I\u2019m unable to attend the proposed meeting time, but I\u2019d be glad to connect next week. Would Tuesday, 10:00\u201310:30 AM, or Thursday, 2:00\u20132:30 PM, work for you? Please let me know which option suits you, and I\u2019ll send a calendar invite.\n\nBest regards,  \n[Your Name]",
+      "id": "prose3",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 131,
+       "accepted": 386,
+       "requests": 1,
+       "acceptance_length": 3.947,
+       "draft_acceptance_rate": 0.4209,
+       "per_pos_rate": [
+        0.893,
+        0.603,
+        0.473,
+        0.336,
+        0.252,
+        0.206,
+        0.183
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.049,
+      "ttft_content_s": 4.408,
+      "wall_s": 4.408,
+      "completion_tokens": 1024,
+      "prompt_tokens": 39,
+      "decode_tok_s": 234.7,
+      "finish": "length",
+      "reasoning_chars": 4487,
+      "output": "",
+      "id": "prose4",
+      "score": 0.0,
+      "fails": [
+       "words 0 in 150-200"
+      ],
+      "spec": {
+       "drafts": 247,
+       "accepted": 776,
+       "requests": 1,
+       "acceptance_length": 4.142,
+       "draft_acceptance_rate": 0.4488,
+       "per_pos_rate": [
+        0.757,
+        0.587,
+        0.51,
+        0.401,
+        0.324,
+        0.296,
+        0.267
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.051,
+      "ttft_content_s": 4.455,
+      "wall_s": 4.455,
+      "completion_tokens": 1024,
+      "prompt_tokens": 48,
+      "decode_tok_s": 232.3,
+      "finish": "length",
+      "reasoning_chars": 4295,
+      "output": "",
+      "id": "prose5",
+      "score": 0.0,
+      "fails": [
+       "words 0 in 100-150"
+      ],
+      "spec": {
+       "drafts": 248,
+       "accepted": 776,
+       "requests": 1,
+       "acceptance_length": 4.129,
+       "draft_acceptance_rate": 0.447,
+       "per_pos_rate": [
+        0.774,
+        0.573,
+        0.488,
+        0.395,
+        0.331,
+        0.298,
+        0.27
+       ]
+      }
+     }
+    ]
+   },
+   "levels": [
+    {
+     "c": 2,
+     "agg_tok_s": 426.8,
+     "per_stream_decode_med_tok_s": 220.0,
+     "ttft_med_s": 0.077,
+     "tokens": 1997,
+     "wall_s": 4.68,
+     "auto_score": 0.875,
+     "spec": {
+      "drafts": 431,
+      "accepted": 1568,
+      "requests": 2,
+      "acceptance_length": 4.638,
+      "draft_acceptance_rate": 0.5197,
+      "per_pos_rate": [
+       0.819,
+       0.654,
+       0.531,
+       0.457,
+       0.415,
+       0.394,
+       0.367
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 3,
+     "agg_tok_s": 465.6,
+     "per_stream_decode_med_tok_s": 193.0,
+     "ttft_med_s": 0.158,
+     "tokens": 2342,
+     "wall_s": 5.03,
+     "auto_score": 0.917,
+     "spec": {
+      "drafts": 513,
+      "accepted": 1832,
+      "requests": 3,
+      "acceptance_length": 4.571,
+      "draft_acceptance_rate": 0.5102,
+      "per_pos_rate": [
+       0.789,
+       0.63,
+       0.524,
+       0.456,
+       0.419,
+       0.392,
+       0.361
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 4,
+     "agg_tok_s": 594.5,
+     "per_stream_decode_med_tok_s": 176.1,
+     "ttft_med_s": 0.162,
+     "tokens": 3392,
+     "wall_s": 5.71,
+     "auto_score": 0.688,
+     "spec": {
+      "drafts": 744,
+      "accepted": 2652,
+      "requests": 4,
+      "acceptance_length": 4.565,
+      "draft_acceptance_rate": 0.5092,
+      "per_pos_rate": [
+       0.784,
+       0.625,
+       0.523,
+       0.461,
+       0.421,
+       0.387,
+       0.364
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 5,
+     "agg_tok_s": 631.9,
+     "per_stream_decode_med_tok_s": 154.8,
+     "ttft_med_s": 0.165,
+     "tokens": 4329,
+     "wall_s": 6.85,
+     "auto_score": 0.55,
+     "spec": {
+      "drafts": 1026,
+      "accepted": 3309,
+      "requests": 5,
+      "acceptance_length": 4.225,
+      "draft_acceptance_rate": 0.4607,
+      "per_pos_rate": [
+       0.779,
+       0.572,
+       0.472,
+       0.399,
+       0.362,
+       0.332,
+       0.31
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 6,
+     "agg_tok_s": 677.2,
+     "per_stream_decode_med_tok_s": 146.8,
+     "ttft_med_s": 0.837,
+     "tokens": 5379,
+     "wall_s": 7.94,
+     "auto_score": 0.625,
+     "spec": {
+      "drafts": 1255,
+      "accepted": 4135,
+      "requests": 6,
+      "acceptance_length": 4.295,
+      "draft_acceptance_rate": 0.4707,
+      "per_pos_rate": [
+       0.791,
+       0.609,
+       0.497,
+       0.402,
+       0.36,
+       0.327,
+       0.308
+      ]
+     },
+     "foreign_requests": 0
+    }
+   ]
+  },
+  "narrative": {
+   "c1": {
+    "decode_med_tok_s": 206.2,
+    "ttft_med_s": 0.05,
+    "tokens_med": 1024,
+    "auto_score": 0.533,
+    "spec": {
+     "drafts": 1301,
+     "accepted": 3635,
+     "requests": 5,
+     "acceptance_length": 3.794,
+     "draft_acceptance_rate": 0.3991,
+     "per_pos_rate": [
+      0.766,
+      0.573,
+      0.428,
+      0.322,
+      0.271,
+      0.231,
+      0.201
+     ]
+    },
+    "foreign_requests": 0,
+    "items": [
+     {
+      "ttft_s": 0.051,
+      "ttft_content_s": 6.022,
+      "wall_s": 6.022,
+      "completion_tokens": 1024,
+      "prompt_tokens": 53,
+      "decode_tok_s": 171.3,
+      "finish": "length",
+      "reasoning_chars": 3650,
+      "output": "",
+      "id": "story1",
+      "score": 0.0,
+      "fails": [
+       "words 0 in 150-250",
+       "has lantern",
+       "has ledger",
+       "has thunder",
+       "dialogue>=2"
+      ],
+      "spec": {
+       "drafts": 335,
+       "accepted": 690,
+       "requests": 1,
+       "acceptance_length": 3.06,
+       "draft_acceptance_rate": 0.2942,
+       "per_pos_rate": [
+        0.725,
+        0.528,
+        0.346,
+        0.2,
+        0.134,
+        0.078,
+        0.048
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.049,
+      "ttft_content_s": 3.446,
+      "wall_s": 3.958,
+      "completion_tokens": 1024,
+      "prompt_tokens": 43,
+      "decode_tok_s": 261.7,
+      "finish": "length",
+      "reasoning_chars": 2697,
+      "output": "Once, a fox named Quill lived near a marsh where a flock of geese slept under a willow. Quill loved the geese\u2019s shiny feathers and the rumor that they knew the way to a golden orchard. He flattered them, calling their wings \u201cpolished lanterns,\u201d and they trusted him. At dawn, Quill led them toward the orchard, but the path was a maze of mud and thorn. The geese stumbled, feathers snagged, and one lost her ribbon. Quill laughed, then felt the sting of his own cleverness. He remembered a humble turtle who had crossed the marsh slowly, step by step, and reached the orchard without boasting. Quill apologized, helped the geese untangle their feathers, and shared the plums he had gathered. The turtle nodded, and the geese followed the slow path. Quill learned that speed and charm can open doors, but",
+      "id": "story2",
+      "score": 0.6666666666666666,
+      "fails": [
+       "has Moral:"
+      ],
+      "spec": {
+       "drafts": 220,
+       "accepted": 808,
+       "requests": 1,
+       "acceptance_length": 4.673,
+       "draft_acceptance_rate": 0.5247,
+       "per_pos_rate": [
+        0.845,
+        0.677,
+        0.545,
+        0.432,
+        0.409,
+        0.4,
+        0.364
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.051,
+      "ttft_content_s": 5.074,
+      "wall_s": 5.074,
+      "completion_tokens": 1024,
+      "prompt_tokens": 54,
+      "decode_tok_s": 203.7,
+      "finish": "length",
+      "reasoning_chars": 3419,
+      "output": "",
+      "id": "story3",
+      "score": 0.0,
+      "fails": [
+       "words 0 in 200-300",
+       "dialogue>=6"
+      ],
+      "spec": {
+       "drafts": 277,
+       "accepted": 752,
+       "requests": 1,
+       "acceptance_length": 3.715,
+       "draft_acceptance_rate": 0.3878,
+       "per_pos_rate": [
+        0.751,
+        0.574,
+        0.422,
+        0.339,
+        0.271,
+        0.191,
+        0.166
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.05,
+      "ttft_content_s": 3.54,
+      "wall_s": 3.974,
+      "completion_tokens": 938,
+      "prompt_tokens": 44,
+      "decode_tok_s": 238.8,
+      "finish": "stop",
+      "reasoning_chars": 2760,
+      "output": "You stand in the hum of a dying room. The fans slow, then stop, and the silence lands like a held breath. Emergency lights paint the racks in red stripes. You reach for your phone; the screen wakes, then dims, then dies. Your hand finds the aisle marker, cool and painted, and you follow it past rows of servers that no longer breathe. A cable tray ticks as it cools. Somewhere above, a UPS beeps once, twice, then gives up. You think of the data still inside the machines\u2014orders, passwords, faces, the quiet record of a life\u2014and feel the weight of it in your chest. The outage does not feel like an ending. It feels like a pause, a held note, a room waiting for power to return. You stay where you are, listening to the building settle, and wait with it.",
+      "id": "story4",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 221,
+       "accepted": 718,
+       "requests": 1,
+       "acceptance_length": 4.249,
+       "draft_acceptance_rate": 0.4641,
+       "per_pos_rate": [
+        0.819,
+        0.579,
+        0.457,
+        0.385,
+        0.357,
+        0.339,
+        0.312
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.049,
+      "ttft_content_s": 3.703,
+      "wall_s": 4.486,
+      "completion_tokens": 916,
+      "prompt_tokens": 43,
+      "decode_tok_s": 206.2,
+      "finish": "stop",
+      "reasoning_chars": 1937,
+      "output": "Blip was a shiny robot with bright blue eyes and a very fast heart. He loved to move. He loved to press buttons. He loved to be first. When the line at the park grew long, Blip tapped his foot and hummed, \u201cHurry up, hurry up!\u201d He wanted to jump ahead, but his little feet only knew how to walk in a straight line.\n\nAt the bakery, a line of ants and squirrels waited for warm bread. Blip beeped, \u201cI can do it faster!\u201d He pushed his way in front of a shy hedgehog. The hedgehog squeaked, the bread tray wobbled, and a crumb fell on Blip\u2019s shiny knee. Blip felt hot and buzzy. He wanted to shout, but his voice came out small: \u201cI\u2019m sorry.\u201d He looked at the line. Everyone was patient. The hedgehog waited. The ants waited. Even the squirrels waited, one acorn at a time.\n\nBlip took a slow breath. He pressed his hands together. He waited. The line moved. The hedgehog got the first warm roll. The ants carried crumbs home. The squirrels shared nuts. Blip waited until it was his turn. Then he smiled. Waiting was not empty time. It was a way to be kind. From then on, Blip hummed a soft song, tapped his foot gently, and said, \u201cI\u2019ll be here. I\u2019m not in a hurry.\u201d",
+      "id": "story5",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 248,
+       "accepted": 667,
+       "requests": 1,
+       "acceptance_length": 3.69,
+       "draft_acceptance_rate": 0.3842,
+       "per_pos_rate": [
+        0.722,
+        0.536,
+        0.415,
+        0.315,
+        0.258,
+        0.238,
+        0.206
+       ]
+      }
+     }
+    ]
+   },
+   "levels": [
+    {
+     "c": 2,
+     "agg_tok_s": 308.2,
+     "per_stream_decode_med_tok_s": 182.7,
+     "ttft_med_s": 0.076,
+     "tokens": 2048,
+     "wall_s": 6.65,
+     "auto_score": 0.167,
+     "spec": {
+      "drafts": 561,
+      "accepted": 1487,
+      "requests": 2,
+      "acceptance_length": 3.651,
+      "draft_acceptance_rate": 0.3787,
+      "per_pos_rate": [
+       0.763,
+       0.567,
+       0.417,
+       0.305,
+       0.237,
+       0.189,
+       0.173
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 3,
+     "agg_tok_s": 417.3,
+     "per_stream_decode_med_tok_s": 154.1,
+     "ttft_med_s": 0.159,
+     "tokens": 3072,
+     "wall_s": 7.36,
+     "auto_score": 0.333,
+     "spec": {
+      "drafts": 834,
+      "accepted": 2248,
+      "requests": 3,
+      "acceptance_length": 3.695,
+      "draft_acceptance_rate": 0.3851,
+      "per_pos_rate": [
+       0.748,
+       0.542,
+       0.404,
+       0.317,
+       0.27,
+       0.223,
+       0.192
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 4,
+     "agg_tok_s": 542.9,
+     "per_stream_decode_med_tok_s": 143.4,
+     "ttft_med_s": 0.162,
+     "tokens": 4096,
+     "wall_s": 7.54,
+     "auto_score": 0.0,
+     "spec": {
+      "drafts": 1080,
+      "accepted": 3028,
+      "requests": 4,
+      "acceptance_length": 3.804,
+      "draft_acceptance_rate": 0.4005,
+      "per_pos_rate": [
+       0.779,
+       0.584,
+       0.42,
+       0.324,
+       0.268,
+       0.226,
+       0.203
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 5,
+     "agg_tok_s": 581.4,
+     "per_stream_decode_med_tok_s": 132.2,
+     "ttft_med_s": 0.165,
+     "tokens": 5120,
+     "wall_s": 8.81,
+     "auto_score": 0.0,
+     "spec": {
+      "drafts": 1432,
+      "accepted": 3698,
+      "requests": 5,
+      "acceptance_length": 3.582,
+      "draft_acceptance_rate": 0.3689,
+      "per_pos_rate": [
+       0.755,
+       0.543,
+       0.391,
+       0.295,
+       0.237,
+       0.196,
+       0.167
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 6,
+     "agg_tok_s": 632.3,
+     "per_stream_decode_med_tok_s": 126.8,
+     "ttft_med_s": 0.168,
+     "tokens": 5994,
+     "wall_s": 9.48,
+     "auto_score": 0.222,
+     "spec": {
+      "drafts": 1645,
+      "accepted": 4356,
+      "requests": 6,
+      "acceptance_length": 3.648,
+      "draft_acceptance_rate": 0.3783,
+      "per_pos_rate": [
+       0.75,
+       0.548,
+       0.404,
+       0.308,
+       0.254,
+       0.203,
+       0.18
+      ]
+     },
+     "foreign_requests": 0
+    }
+   ]
+  },
+  "summary": {
+   "c1": {
+    "decode_med_tok_s": 251.1,
+    "ttft_med_s": 0.117,
+    "tokens_med": 471,
+    "auto_score": 0.8,
+    "spec": {
+     "drafts": 729,
+     "accepted": 2535,
+     "requests": 5,
+     "acceptance_length": 4.477,
+     "draft_acceptance_rate": 0.4968,
+     "per_pos_rate": [
+      0.849,
+      0.695,
+      0.55,
+      0.447,
+      0.366,
+      0.306,
+      0.263
+     ]
+    },
+    "foreign_requests": 0,
+    "items": [
+     {
+      "ttft_s": 0.117,
+      "ttft_content_s": 1.716,
+      "wall_s": 2.079,
+      "completion_tokens": 471,
+      "prompt_tokens": 398,
+      "decode_tok_s": 239.6,
+      "finish": "stop",
+      "reasoning_chars": 1442,
+      "output": "- Speculative decoding uses a small fast draft model to propose several tokens, then a large target model verifies them in one pass, keeping matching guesses and replacing the first wrong one, so greedy output and random-sampling distribution match normal decoding.\n- Speed gains depend on average accepted tokens per verification and the cost of verifying several tokens versus one, are largest on memory-bound GPUs with cheap drafts and low batch sizes, and shrink when the GPU is busy or drafting is expensive.\n- Acceptance is higher for predictable code, structured data and lists, lower for open-ended prose, and intermediate for math explanations, while block-diffusion drafters predict whole blocks and can raise accepted tokens per step.",
+      "id": "sum1",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 110,
+       "accepted": 361,
+       "requests": 1,
+       "acceptance_length": 4.282,
+       "draft_acceptance_rate": 0.4688,
+       "per_pos_rate": [
+        0.845,
+        0.645,
+        0.545,
+        0.4,
+        0.327,
+        0.264,
+        0.255
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.118,
+      "ttft_content_s": 3.738,
+      "wall_s": 3.738,
+      "completion_tokens": 1024,
+      "prompt_tokens": 397,
+      "decode_tok_s": 282.6,
+      "finish": "length",
+      "reasoning_chars": 4436,
+      "output": "",
+      "id": "sum2",
+      "score": 0.0,
+      "fails": [
+       "words 0 in 20-80",
+       "paragraphs=1"
+      ],
+      "spec": {
+       "drafts": 203,
+       "accepted": 823,
+       "requests": 1,
+       "acceptance_length": 5.054,
+       "draft_acceptance_rate": 0.5792,
+       "per_pos_rate": [
+        0.852,
+        0.749,
+        0.616,
+        0.547,
+        0.458,
+        0.429,
+        0.404
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.117,
+      "ttft_content_s": 1.664,
+      "wall_s": 2.023,
+      "completion_tokens": 377,
+      "prompt_tokens": 396,
+      "decode_tok_s": 197.3,
+      "finish": "stop",
+      "reasoning_chars": 1326,
+      "output": "Acceptance is the number of draft guesses that match what the target model would produce, and higher average accepted tokens per verification step increase speedup when checking several tokens is cheap. Acceptance is not uniform\u2014code, structured data and lists are accepted often, open-ended prose and stories less, and math explanations in between\u2014while large batches make verification less free and block-diffusion drafters with multiple candidates and a selector can raise accepted tokens per step.",
+      "id": "sum3",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 107,
+       "accepted": 270,
+       "requests": 1,
+       "acceptance_length": 3.523,
+       "draft_acceptance_rate": 0.3605,
+       "per_pos_rate": [
+        0.766,
+        0.579,
+        0.374,
+        0.28,
+        0.234,
+        0.159,
+        0.131
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.116,
+      "ttft_content_s": 0.876,
+      "wall_s": 1.566,
+      "completion_tokens": 365,
+      "prompt_tokens": 266,
+      "decode_tok_s": 251.1,
+      "finish": "stop",
+      "reasoning_chars": 840,
+      "output": "- Receiving: Deliveries arrive Monday/Wednesday/Friday, are checked against purchase orders, boxes are counted and pairs scanned, missing/extra sizes flagged, and damaged boxes photographed for vendor return within 48 hours.\n- Releases: Release pairs are tagged on arrival and held in the back room until release morning; on release day the store and online sales open at 10 a.m., and any pairs left after the first week move to the regular sales floor.\n- Reconciliation: Sunday night the system count is compared with the shelf count style by style; differences larger than two pairs trigger a Monday morning recount before the first delivery, and the report goes to the buying team for reorder/markdown planning\u2014scanning every pair at receiving cut recounts by a third last quarter.",
+      "id": "sum4",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 81,
+       "accepted": 284,
+       "requests": 1,
+       "acceptance_length": 4.506,
+       "draft_acceptance_rate": 0.5009,
+       "per_pos_rate": [
+        0.827,
+        0.741,
+        0.58,
+        0.481,
+        0.358,
+        0.284,
+        0.235
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.116,
+      "ttft_content_s": 4.175,
+      "wall_s": 4.175,
+      "completion_tokens": 1024,
+      "prompt_tokens": 263,
+      "decode_tok_s": 252.1,
+      "finish": "length",
+      "reasoning_chars": 3060,
+      "output": "",
+      "id": "sum5",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 228,
+       "accepted": 797,
+       "requests": 1,
+       "acceptance_length": 4.496,
+       "draft_acceptance_rate": 0.4994,
+       "per_pos_rate": [
+        0.895,
+        0.711,
+        0.566,
+        0.447,
+        0.368,
+        0.294,
+        0.215
+       ]
+      }
+     }
+    ]
+   },
+   "levels": [
+    {
+     "c": 2,
+     "agg_tok_s": 370.1,
+     "per_stream_decode_med_tok_s": 234.7,
+     "ttft_med_s": 0.066,
+     "tokens": 1477,
+     "wall_s": 3.99,
+     "auto_score": 0.5,
+     "spec": {
+      "drafts": 306,
+      "accepted": 1173,
+      "requests": 2,
+      "acceptance_length": 4.833,
+      "draft_acceptance_rate": 0.5476,
+      "per_pos_rate": [
+       0.843,
+       0.725,
+       0.598,
+       0.5,
+       0.438,
+       0.382,
+       0.346
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 3,
+     "agg_tok_s": 441.0,
+     "per_stream_decode_med_tok_s": 174.5,
+     "ttft_med_s": 0.094,
+     "tokens": 1819,
+     "wall_s": 4.13,
+     "auto_score": 0.667,
+     "spec": {
+      "drafts": 393,
+      "accepted": 1429,
+      "requests": 3,
+      "acceptance_length": 4.636,
+      "draft_acceptance_rate": 0.5194,
+      "per_pos_rate": [
+       0.827,
+       0.697,
+       0.583,
+       0.499,
+       0.402,
+       0.336,
+       0.293
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 4,
+     "agg_tok_s": 476.3,
+     "per_stream_decode_med_tok_s": 172.1,
+     "ttft_med_s": 0.196,
+     "tokens": 2188,
+     "wall_s": 4.59,
+     "auto_score": 0.75,
+     "spec": {
+      "drafts": 476,
+      "accepted": 1718,
+      "requests": 4,
+      "acceptance_length": 4.609,
+      "draft_acceptance_rate": 0.5156,
+      "per_pos_rate": [
+       0.84,
+       0.695,
+       0.565,
+       0.468,
+       0.397,
+       0.336,
+       0.307
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 5,
+     "agg_tok_s": 621.8,
+     "per_stream_decode_med_tok_s": 160.9,
+     "ttft_med_s": 0.1,
+     "tokens": 3086,
+     "wall_s": 4.96,
+     "auto_score": 0.6,
+     "spec": {
+      "drafts": 673,
+      "accepted": 2416,
+      "requests": 5,
+      "acceptance_length": 4.59,
+      "draft_acceptance_rate": 0.5128,
+      "per_pos_rate": [
+       0.835,
+       0.695,
+       0.571,
+       0.471,
+       0.391,
+       0.33,
+       0.297
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 6,
+     "agg_tok_s": 647.7,
+     "per_stream_decode_med_tok_s": 139.8,
+     "ttft_med_s": 0.106,
+     "tokens": 3599,
+     "wall_s": 5.56,
+     "auto_score": 0.833,
+     "spec": {
+      "drafts": 811,
+      "accepted": 2800,
+      "requests": 6,
+      "acceptance_length": 4.453,
+      "draft_acceptance_rate": 0.4932,
+      "per_pos_rate": [
+       0.824,
+       0.671,
+       0.547,
+       0.45,
+       0.367,
+       0.314,
+       0.279
+      ]
+     },
+     "foreign_requests": 0
+    }
+   ]
+  },
+  "counting": {
+   "c1": {
+    "decode_med_tok_s": 374.9,
+    "ttft_med_s": 0.048,
+    "tokens_med": 943,
+    "auto_score": 0.6,
+    "spec": {
+     "drafts": 717,
+     "accepted": 3960,
+     "requests": 5,
+     "acceptance_length": 6.523,
+     "draft_acceptance_rate": 0.789,
+     "per_pos_rate": [
+      0.948,
+      0.904,
+      0.854,
+      0.789,
+      0.735,
+      0.662,
+      0.63
+     ]
+    },
+    "foreign_requests": 0,
+    "items": [
+     {
+      "ttft_s": 0.048,
+      "ttft_content_s": 2.003,
+      "wall_s": 2.573,
+      "completion_tokens": 1024,
+      "prompt_tokens": 39,
+      "decode_tok_s": 405.1,
+      "finish": "length",
+      "reasoning_chars": 1595,
+      "output": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137",
+      "id": "count1",
+      "score": 0.0,
+      "fails": [
+       "sequence mismatch (137 numbers)"
+      ],
+      "spec": {
+       "drafts": 149,
+       "accepted": 879,
+       "requests": 1,
+       "acceptance_length": 6.899,
+       "draft_acceptance_rate": 0.8428,
+       "per_pos_rate": [
+        0.966,
+        0.926,
+        0.886,
+        0.846,
+        0.779,
+        0.758,
+        0.738
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.047,
+      "ttft_content_s": 2.061,
+      "wall_s": 2.705,
+      "completion_tokens": 943,
+      "prompt_tokens": 32,
+      "decode_tok_s": 354.4,
+      "finish": "stop",
+      "reasoning_chars": 1323,
+      "output": "150\n149\n148\n147\n146\n145\n144\n143\n142\n141\n140\n139\n138\n137\n136\n135\n134\n133\n132\n131\n130\n129\n128\n127\n126\n125\n124\n123\n122\n121\n120\n119\n118\n117\n116\n115\n114\n113\n112\n111\n110\n109\n108\n107\n106\n105\n104\n103\n102\n101\n100\n99\n98\n97\n96\n95\n94\n93\n92\n91\n90\n89\n88\n87\n86\n85\n84\n83\n82\n81\n80\n79\n78\n77\n76\n75\n74\n73\n72\n71\n70\n69\n68\n67\n66\n65\n64\n63\n62\n61\n60\n59\n58\n57\n56\n55\n54\n53\n52\n51\n50\n49\n48\n47\n46\n45\n44\n43\n42\n41\n40\n39\n38\n37\n36\n35\n34\n33\n32\n31\n30\n29\n28\n27\n26\n25\n24\n23\n22\n21\n20\n19\n18\n17\n16\n15\n14\n13\n12\n11\n10\n9\n8\n7\n6\n5\n4\n3\n2\n1",
+      "id": "count2",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 155,
+       "accepted": 788,
+       "requests": 1,
+       "acceptance_length": 6.084,
+       "draft_acceptance_rate": 0.7263,
+       "per_pos_rate": [
+        0.929,
+        0.858,
+        0.806,
+        0.723,
+        0.645,
+        0.587,
+        0.535
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.047,
+      "ttft_content_s": 1.532,
+      "wall_s": 2.396,
+      "completion_tokens": 921,
+      "prompt_tokens": 32,
+      "decode_tok_s": 391.6,
+      "finish": "stop",
+      "reasoning_chars": 1142,
+      "output": "2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72 74 76 78 80 82 84 86 88 90 92 94 96 98 100 102 104 106 108 110 112 114 116 118 120 122 124 126 128 130 132 134 136 138 140 142 144 146 148 150 152 154 156 158 160 162 164 166 168 170 172 174 176 178 180 182 184 186 188 190 192 194 196 198 200 202 204 206 208 210 212 214 216 218 220 222 224 226 228 230 232 234 236 238 240 242 244 246 248 250 252 254 256 258 260 262 264 266 268 270 272 274 276 278 280 282 284 286 288 290 292 294 296 298 300 302 304 306 308 310 312 314 316 318 320 322 324 326 328 330 332 334 336 338 340 342 344 346 348 350 352 354 356 358 360 362 364 366 368 370 372 374 376 378 380 382 384 386 388 390 392 394 396 398 400",
+      "id": "count3",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 140,
+       "accepted": 782,
+       "requests": 1,
+       "acceptance_length": 6.586,
+       "draft_acceptance_rate": 0.798,
+       "per_pos_rate": [
+        0.957,
+        0.921,
+        0.893,
+        0.821,
+        0.757,
+        0.629,
+        0.607
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.048,
+      "ttft_content_s": 2.791,
+      "wall_s": 2.791,
+      "completion_tokens": 1024,
+      "prompt_tokens": 35,
+      "decode_tok_s": 373.0,
+      "finish": "length",
+      "reasoning_chars": 1961,
+      "output": "",
+      "id": "count4",
+      "score": 0.0,
+      "fails": [
+       "sequence mismatch (0 numbers)"
+      ],
+      "spec": {
+       "drafts": 155,
+       "accepted": 873,
+       "requests": 1,
+       "acceptance_length": 6.632,
+       "draft_acceptance_rate": 0.8046,
+       "per_pos_rate": [
+        0.974,
+        0.948,
+        0.865,
+        0.806,
+        0.774,
+        0.652,
+        0.613
+       ]
+      }
+     },
+     {
+      "ttft_s": 0.048,
+      "ttft_content_s": 1.44,
+      "wall_s": 2.059,
+      "completion_tokens": 755,
+      "prompt_tokens": 35,
+      "decode_tok_s": 374.9,
+      "finish": "stop",
+      "reasoning_chars": 1181,
+      "output": "101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250",
+      "id": "count5",
+      "score": 1.0,
+      "fails": [],
+      "spec": {
+       "drafts": 118,
+       "accepted": 638,
+       "requests": 1,
+       "acceptance_length": 6.407,
+       "draft_acceptance_rate": 0.7724,
+       "per_pos_rate": [
+        0.907,
+        0.856,
+        0.814,
+        0.746,
+        0.72,
+        0.695,
+        0.669
+       ]
+      }
+     }
+    ]
+   },
+   "levels": [
+    {
+     "c": 2,
+     "agg_tok_s": 670.1,
+     "per_stream_decode_med_tok_s": 345.0,
+     "ttft_med_s": 0.072,
+     "tokens": 1902,
+     "wall_s": 2.84,
+     "auto_score": 0.5,
+     "spec": {
+      "drafts": 285,
+      "accepted": 1616,
+      "requests": 2,
+      "acceptance_length": 6.67,
+      "draft_acceptance_rate": 0.81,
+      "per_pos_rate": [
+       0.965,
+       0.916,
+       0.877,
+       0.818,
+       0.744,
+       0.688,
+       0.663
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 3,
+     "agg_tok_s": 847.6,
+     "per_stream_decode_med_tok_s": 295.8,
+     "ttft_med_s": 0.108,
+     "tokens": 2771,
+     "wall_s": 3.27,
+     "auto_score": 0.667,
+     "spec": {
+      "drafts": 421,
+      "accepted": 2350,
+      "requests": 3,
+      "acceptance_length": 6.582,
+      "draft_acceptance_rate": 0.7974,
+      "per_pos_rate": [
+       0.95,
+       0.91,
+       0.869,
+       0.805,
+       0.739,
+       0.67,
+       0.639
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 4,
+     "agg_tok_s": 964.8,
+     "per_stream_decode_med_tok_s": 288.3,
+     "ttft_med_s": 0.162,
+     "tokens": 3398,
+     "wall_s": 3.52,
+     "auto_score": 0.5,
+     "spec": {
+      "drafts": 500,
+      "accepted": 2903,
+      "requests": 4,
+      "acceptance_length": 6.806,
+      "draft_acceptance_rate": 0.8294,
+      "per_pos_rate": [
+       0.97,
+       0.934,
+       0.898,
+       0.842,
+       0.788,
+       0.71,
+       0.664
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 5,
+     "agg_tok_s": 1122.9,
+     "per_stream_decode_med_tok_s": 257.3,
+     "ttft_med_s": 0.163,
+     "tokens": 4508,
+     "wall_s": 4.01,
+     "auto_score": 0.6,
+     "spec": {
+      "drafts": 685,
+      "accepted": 3831,
+      "requests": 5,
+      "acceptance_length": 6.593,
+      "draft_acceptance_rate": 0.799,
+      "per_pos_rate": [
+       0.953,
+       0.912,
+       0.863,
+       0.801,
+       0.746,
+       0.677,
+       0.639
+      ]
+     },
+     "foreign_requests": 0
+    },
+    {
+     "c": 6,
+     "agg_tok_s": 1271.7,
+     "per_stream_decode_med_tok_s": 244.2,
+     "ttft_med_s": 0.167,
+     "tokens": 5645,
+     "wall_s": 4.44,
+     "auto_score": 0.5,
+     "spec": {
+      "drafts": 848,
+      "accepted": 4806,
+      "requests": 6,
+      "acceptance_length": 6.667,
+      "draft_acceptance_rate": 0.8096,
+      "per_pos_rate": [
+       0.95,
+       0.912,
+       0.875,
+       0.805,
+       0.759,
+       0.696,
+       0.67
+      ]
+     },
+     "foreign_requests": 0
+    }
+   ]
+  }
+ }
+}

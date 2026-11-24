@@ -1,0 +1,26 @@
+--- a/vllm/v1/worker/gpu/spec_decode/dflash2/speculator.py
++++ b/vllm/v1/worker/gpu/spec_decode/dflash2/speculator.py
+@@ -4,6 +4,7 @@
+ from typing import Any
+ 
+ import torch
++import torch.nn as nn
+ 
+ from vllm.config import VllmConfig
+ from vllm.config.compilation import CUDAGraphMode
+@@ -204,6 +205,15 @@
+         self.candidate_sampler = CandidateSampler(
+             self.max_num_reqs, self.num_speculative_steps, self.top_k, device
+         )
++
++    def load_draft_model(
++        self, target_model: nn.Module, target_attn_layer_names: set[str]
++    ) -> nn.Module:
++        model = super().load_draft_model(target_model, target_attn_layer_names)
++        attach_target = getattr(model, "attach_target", None)
++        if callable(attach_target):
++            attach_target(target_model)
++        return model
+ 
+     def draft_logits_spec(self, vllm_config: VllmConfig) -> tuple[torch.dtype, float]:
+         # fp32 so the walk and the rejection that checks it read the same

@@ -1,0 +1,8 @@
+  p1:  512 tok  ttft     51 ms  decode  166.8 tok/s  | '```python'
+  p2:  512 tok  ttft     62 ms  decode  123.6 tok/s  | 'A refrigerator is like a tiny heat-moving machine. It doesn’t create c'
+  p3:  385 tok  ttft     61 ms  decode  122.6 tok/s  | '1. Keep a clear size-and-color grid so customers can find pairs quickl'
+  p4:  512 tok  ttft     68 ms  decode  194.4 tok/s  | 'Assume both trains go the same direction on the same track.\n\n- First t'
+  p5:  512 tok  ttft     49 ms  decode  106.2 tok/s  | ''
+  p6:  512 tok  ttft     51 ms  decode  128.8 tok/s  | ''
+rtx3090_dspark_k7 aggregate decode 135.5 tok/s, median 128.8, total 2945 tok
+rtx3090_dspark_k7 spec: drafts 1235, draft tokens 8645, accepted 1713 -> acceptance 19.8%, mean accepted/draft 1.39 (tokens per target step 2.39)

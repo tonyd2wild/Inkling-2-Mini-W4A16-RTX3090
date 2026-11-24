@@ -1,0 +1,117 @@
+--- a/vllm/model_executor/models/qwen3_dflash2.py
++++ b/vllm/model_executor/models/qwen3_dflash2.py
+@@ -11,6 +11,7 @@
+ from vllm.model_executor.layers.linear import ReplicatedLinear
+ from vllm.model_executor.layers.logits_processor import LogitsProcessor
+ from vllm.model_executor.layers.quantization.base_config import QuantizationConfig
++from vllm.platforms import current_platform
+ from vllm.triton_utils import tl, triton
+ from vllm.utils.torch_utils import direct_register_custom_op
+ from vllm.v1.worker.gpu.spec_decode.dflash2.config import DFlash2SpeculatorConfig
+@@ -225,6 +226,13 @@
+         self, hidden_states: torch.Tensor, coefficients: torch.Tensor
+     ) -> torch.Tensor:
+         return self._convolve(hidden_states, coefficients, 1)
++
++
++def _selector_softcap_mode(draft_config: dict) -> str:
++    mode = draft_config.get("selector_softcap_mode", "before_correction")
++    if mode not in ("before_correction", "after_correction"):
++        raise ValueError(f"Unknown DFlash2 selector_softcap_mode: {mode!r}")
++    return mode
+ 
+ 
+ class DFlash2Qwen3DecoderLayer(DFlashQwen3DecoderLayer):
+@@ -472,6 +480,9 @@
+     ) -> None:
+         super().__init__()
+         self.top_k = top_k
++        # selector_softcap_mode="after_correction": soft-cap unary + edges
++        # (set by DFlash2Qwen3Model); None caps the unary logits only.
++        self.post_softcap: float | None = None
+         self.predecessor_codebook = nn.Parameter(
+             torch.empty(vocab_size, rank, dtype=params_dtype), requires_grad=False
+         )
+@@ -496,7 +507,7 @@
+         anchor_token_ids: torch.Tensor,
+     ) -> torch.Tensor:
+         hidden = self.hidden_projection(hidden_states)
+-        return _score_edges(
++        scores = _score_edges(
+             self.predecessor_codebook,
+             self.successor_codebook,
+             candidate_ids,
+@@ -505,6 +516,10 @@
+             anchor_token_ids,
+             self.top_k,
+         )
++        if self.post_softcap is not None:
++            cap = self.post_softcap
++            scores = torch.tanh(scores / cap) * cap
++        return scores
+ 
+ 
+ class DFlash2Qwen3Model(DFlashQwen3Model):
+@@ -536,9 +551,19 @@
+                 params_dtype=vllm_config.model_config.dtype,
+                 prefix=maybe_prefix(prefix, "candidate_selector"),
+             )
++        self.selector_softcap_mode = _selector_softcap_mode(draft_config)
++        softcap = float(draft_config.get("final_logit_softcapping") or 0.0)
++        if self.selector_softcap_mode == "after_correction" and softcap > 0:
++            self.candidate_selector.post_softcap = softcap
++        # The target's input-embedding norm, for targets whose input embedding
++        # is norm(embed_tokens(ids)) (Inkling2); set by attach_target().
++        self.target_embed_norm: nn.Module | None = None
+ 
+     def embed_input_ids(self, input_ids: torch.Tensor) -> torch.Tensor:
+-        return super().embed_input_ids(input_ids) * self.input_embedding_scale
++        embeds = super().embed_input_ids(input_ids)
++        if self.target_embed_norm is not None:
++            embeds = self.target_embed_norm(embeds)
++        return embeds * self.input_embedding_scale
+ 
+ 
+ class DFlash2Qwen3ForCausalLM(DFlashQwen3ForCausalLM):
+@@ -551,6 +576,9 @@
+         super().__init__(vllm_config=vllm_config, prefix=prefix)
+         draft_config = self.config.dflash_config
+         softcap = float(draft_config.get("final_logit_softcapping") or 0.0)
++        if _selector_softcap_mode(draft_config) == "after_correction":
++            # The selector soft-caps unary + edge scores; unary stays raw.
++            softcap = 0.0
+         # Candidates index the selector codebooks, which have the draft's
+         # vocabulary; the target's vocabulary can be larger.
+         self.candidate_logits_processor = LogitsProcessor(
+@@ -558,7 +586,31 @@
+             scale=float(draft_config.get("output_multiplier", 1.0)),
+             soft_cap=softcap if softcap > 0 else None,
+         )
++        if current_platform.is_cuda() and not current_platform.has_device_capability(
++            90
++        ):
++            # Images built without SM8x kernels have no compiled silu_and_mul
++            # for Ampere; the draft MLPs use the torch implementation there.
++            for layer in self.model.layers:
++                act_fn = layer.mlp.act_fn
++                act_fn._forward_method = act_fn.forward_native
+ 
++    def attach_target(self, target_model: nn.Module) -> None:
++        """Embed draft inputs the way the target embeds its own: Inkling2
++        normalizes its token embeddings (embed_norm), and its DFlash2 draft is
++        trained on those normalized embeddings."""
++        language_model = (
++            target_model.get_language_model()
++            if hasattr(target_model, "get_language_model")
++            else target_model
++        )
++        inner = getattr(language_model, "model", language_model)
++        embed_norm = getattr(inner, "embed_norm", None)
++        if type(language_model).__name__.startswith("Inkling2") and isinstance(
++            embed_norm, nn.Module
++        ):
++            self.model.target_embed_norm = embed_norm
++
+     def compute_candidates(
+         self, hidden_states: torch.Tensor
+     ) -> tuple[torch.Tensor, torch.Tensor]:
